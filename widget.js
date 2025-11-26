@@ -5,10 +5,10 @@
   // CONFIGURATION
   // ============================================
   
-  const SCRIPT_TAG = document.currentScript;
-  const PRODUCT_ID = SCRIPT_TAG.getAttribute('data-product');
-  const API_BASE = 'https://mysellkit.com/api/1.1/wf';
-  const CHECKOUT_BASE = 'https://mysellkit.com';
+const SCRIPT_TAG = document.currentScript;
+const PRODUCT_ID = SCRIPT_TAG.getAttribute('data-product');
+const API_BASE = 'https://mysellkit.com/version-test/api/1.1/wf';
+const CHECKOUT_BASE = 'https://mysellkit.com/version-test';
   
   let widgetConfig = null;
   let widgetShown = false;

@@ -7,8 +7,8 @@
   
   const SCRIPT_TAG = document.currentScript;
   const PRODUCT_ID = SCRIPT_TAG.getAttribute('data-product');
-  const API_BASE = 'https://aureo.page/version-test/api/1.1/wf';
-  const CHECKOUT_BASE = 'https://aureo.page/version-test/checkout';
+  const API_BASE = 'https://mysellkit.com/api/1.1/wf';
+  const CHECKOUT_BASE = 'https://mysellkit.com';
   
   let widgetConfig = null;
   let widgetShown = false;
@@ -17,11 +17,11 @@
   // Check debug mode from multiple sources
   const urlParams = new URLSearchParams(window.location.search);
   const DEBUG_MODE = urlParams.get('debug') === 'true' || 
-                     urlParams.get('floatypay_test') === 'true' ||
+                     urlParams.get('mysellkit_test') === 'true' ||
                      SCRIPT_TAG.getAttribute('data-debug') === 'true';
   
   if (DEBUG_MODE) {
-    console.log('🔧 FloatyPay DEBUG MODE ENABLED');
+    console.log('🔧 MySellKit DEBUG MODE ENABLED');
   }
 
   // ============================================
@@ -31,11 +31,11 @@
   function getSessionId() {
     if (sessionId) return sessionId;
     
-    sessionId = sessionStorage.getItem('floatypay_session');
+    sessionId = sessionStorage.getItem('mysellkit_session');
     
     if (!sessionId) {
-      sessionId = 'fp_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-      sessionStorage.setItem('floatypay_session', sessionId);
+      sessionId = 'msk_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+      sessionStorage.setItem('mysellkit_session', sessionId);
     }
     
     if (DEBUG_MODE) {
@@ -56,13 +56,13 @@
       return true;
     }
     
-    const lastSeen = localStorage.getItem(`floatypay_seen_${PRODUCT_ID}`);
+    const lastSeen = localStorage.getItem(`mysellkit_seen_${PRODUCT_ID}`);
     if (lastSeen && Date.now() - lastSeen < 86400000) {
       console.log('❌ Widget already seen in last 24h');
       return false;
     }
     
-    const closedThisSession = sessionStorage.getItem(`floatypay_closed_${PRODUCT_ID}`);
+    const closedThisSession = sessionStorage.getItem(`mysellkit_closed_${PRODUCT_ID}`);
     if (closedThisSession) {
       console.log('❌ Widget closed this session');
       return false;
@@ -94,11 +94,11 @@
         }
         return data.response;
       } else {
-        console.error('FloatyPay: Invalid product ID');
+        console.error('MySellKit: Invalid product ID');
         return null;
       }
     } catch (error) {
-      console.error('FloatyPay: Failed to fetch config', error);
+      console.error('MySellKit: Failed to fetch config', error);
       return null;
     }
   }
@@ -132,7 +132,7 @@
         console.log('✅ Event tracked:', eventType);
       }
     } catch (error) {
-      console.error('FloatyPay: Failed to track event', error);
+      console.error('MySellKit: Failed to track event', error);
     }
   }
 
@@ -143,7 +143,7 @@
   function injectCSS() {
     const style = document.createElement('style');
     style.textContent = `
-      .floatypay-overlay {
+      .mysellkit-overlay {
         display: none;
         position: fixed;
         top: 0;
@@ -155,14 +155,14 @@
         z-index: 999999;
         align-items: center;
         justify-content: center;
-        animation: floatypay-fadeIn 0.3s ease;
+        animation: mysellkit-fadeIn 0.3s ease;
       }
       
-      .floatypay-overlay.visible {
+      .mysellkit-overlay.visible {
         display: flex;
       }
       
-      .floatypay-popup {
+      .mysellkit-popup {
         background: white;
         border-radius: 16px;
         padding: 32px;
@@ -170,23 +170,23 @@
         max-width: 400px;
         box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
         position: relative;
-        animation: floatypay-slideUp 0.3s ease;
+        animation: mysellkit-slideUp 0.3s ease;
         text-align: center;
       }
       
-      .floatypay-overlay.bottom-right {
+      .mysellkit-overlay.bottom-right {
         align-items: flex-end;
         justify-content: flex-end;
         padding: 20px;
         background: transparent;
       }
       
-      .floatypay-overlay.bottom-right .floatypay-popup {
+      .mysellkit-overlay.bottom-right .mysellkit-popup {
         max-width: 320px;
-        animation: floatypay-slideInRight 0.3s ease;
+        animation: mysellkit-slideInRight 0.3s ease;
       }
       
-      .floatypay-close {
+      .mysellkit-close {
         position: absolute;
         top: 16px;
         right: 16px;
@@ -202,11 +202,11 @@
         height: 32px;
       }
       
-      .floatypay-close:hover {
+      .mysellkit-close:hover {
         color: #333;
       }
       
-      .floatypay-image {
+      .mysellkit-image {
         width: 100%;
         max-width: 200px;
         height: auto;
@@ -214,7 +214,7 @@
         margin-bottom: 20px;
       }
       
-      .floatypay-title {
+      .mysellkit-title {
         font-size: 24px;
         font-weight: 700;
         color: #1a1a1a;
@@ -223,7 +223,7 @@
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       }
       
-      .floatypay-price {
+      .mysellkit-price {
         font-size: 32px;
         font-weight: 800;
         color: #3B82F6;
@@ -231,7 +231,7 @@
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       }
       
-      .floatypay-cta {
+      .mysellkit-cta {
         background: #3B82F6;
         color: white;
         border: none;
@@ -245,13 +245,13 @@
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       }
       
-      .floatypay-cta:hover {
+      .mysellkit-cta:hover {
         background: #2563EB;
         transform: translateY(-2px);
         box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
       }
       
-      .floatypay-debug-badge {
+      .mysellkit-debug-badge {
         position: fixed;
         bottom: 10px;
         left: 10px;
@@ -265,12 +265,12 @@
         font-family: monospace;
       }
       
-      @keyframes floatypay-fadeIn {
+      @keyframes mysellkit-fadeIn {
         from { opacity: 0; }
         to { opacity: 1; }
       }
       
-      @keyframes floatypay-slideUp {
+      @keyframes mysellkit-slideUp {
         from { 
           opacity: 0;
           transform: translateY(30px);
@@ -281,7 +281,7 @@
         }
       }
       
-      @keyframes floatypay-slideInRight {
+      @keyframes mysellkit-slideInRight {
         from { 
           opacity: 0;
           transform: translateX(30px);
@@ -293,20 +293,20 @@
       }
       
       @media (max-width: 480px) {
-        .floatypay-popup {
+        .mysellkit-popup {
           padding: 24px;
           max-width: 90%;
         }
         
-        .floatypay-title {
+        .mysellkit-title {
           font-size: 20px;
         }
         
-        .floatypay-price {
+        .mysellkit-price {
           font-size: 28px;
         }
         
-        .floatypay-cta {
+        .mysellkit-cta {
           font-size: 16px;
           padding: 14px 28px;
         }
@@ -318,7 +318,7 @@
     // Add debug badge if in debug mode
     if (DEBUG_MODE) {
       const badge = document.createElement('div');
-      badge.className = 'floatypay-debug-badge';
+      badge.className = 'mysellkit-debug-badge';
       badge.textContent = '🔧 TEST MODE';
       document.body.appendChild(badge);
     }
@@ -334,20 +334,20 @@
     }
     
     const overlay = document.createElement('div');
-    overlay.className = 'floatypay-overlay';
-    overlay.id = 'floatypay-widget';
+    overlay.className = 'mysellkit-overlay';
+    overlay.id = 'mysellkit-widget';
     
     if (config.position === 'bottom-right') {
       overlay.classList.add('bottom-right');
     }
     
     overlay.innerHTML = `
-      <div class="floatypay-popup">
-        <button class="floatypay-close" aria-label="Close">×</button>
-        <img src="${config.image}" alt="${config.title}" class="floatypay-image">
-        <h3 class="floatypay-title">${config.title}</h3>
-        <p class="floatypay-price">€${config.price}</p>
-        <button class="floatypay-cta">Get Now</button>
+      <div class="mysellkit-popup">
+        <button class="mysellkit-close" aria-label="Close">×</button>
+        <img src="${config.image}" alt="${config.title}" class="mysellkit-image">
+        <h3 class="mysellkit-title">${config.title}</h3>
+        <p class="mysellkit-price">€${config.price}</p>
+        <button class="mysellkit-cta">Get Now</button>
       </div>
     `;
     
@@ -360,7 +360,7 @@
   // ============================================
   
   function setupEventListeners(overlay, config) {
-    overlay.querySelector('.floatypay-close').addEventListener('click', () => {
+    overlay.querySelector('.mysellkit-close').addEventListener('click', () => {
       if (DEBUG_MODE) {
         console.log('❌ Close button clicked');
       }
@@ -376,16 +376,57 @@
       }
     });
     
-    overlay.querySelector('.floatypay-cta').addEventListener('click', () => {
+    overlay.querySelector('.mysellkit-cta').addEventListener('click', async () => {
       if (DEBUG_MODE) {
         console.log('🛒 CTA button clicked');
       }
+      
+      // Track click
       trackEvent('click');
-      const checkoutUrl = `${CHECKOUT_BASE}/${PRODUCT_ID}?session=${getSessionId()}`;
-      if (DEBUG_MODE) {
-        console.log('🔗 Redirecting to:', checkoutUrl);
+      
+      // Show loading state
+      const button = overlay.querySelector('.mysellkit-cta');
+      const originalText = button.textContent;
+      button.textContent = 'Loading...';
+      button.disabled = true;
+      
+      try {
+        // Create Stripe Checkout Session
+        const response = await fetch(`${API_BASE}/create-checkout-session`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            product_id: PRODUCT_ID,
+            session_id: getSessionId(),
+            success_url: `${CHECKOUT_BASE}/success?session_id={CHECKOUT_SESSION_ID}&product_id=${PRODUCT_ID}&tracking_session=${getSessionId()}`,
+            cancel_url: window.location.href
+          })
+        });
+        
+        const data = await response.json();
+        
+        if (DEBUG_MODE) {
+          console.log('💳 Checkout session created:', data);
+        }
+        
+        if (data.response && data.response.success === 'yes') {
+          // Redirect to Stripe Checkout
+          if (DEBUG_MODE) {
+            console.log('🔗 Redirecting to Stripe:', data.response.checkout_url);
+          }
+          window.location.href = data.response.checkout_url;
+        } else {
+          console.error('Failed to create checkout session');
+          button.textContent = 'Error - Try again';
+          button.disabled = false;
+        }
+      } catch (error) {
+        console.error('Error creating checkout:', error);
+        button.textContent = originalText;
+        button.disabled = false;
       }
-      window.location.href = checkoutUrl;
     });
   }
 
@@ -405,7 +446,7 @@
       return;
     }
     
-    const overlay = document.getElementById('floatypay-widget');
+    const overlay = document.getElementById('mysellkit-widget');
     if (!overlay) return;
     
     if (DEBUG_MODE) {
@@ -419,19 +460,19 @@
     
     // Don't save to localStorage in debug mode
     if (!DEBUG_MODE) {
-      localStorage.setItem(`floatypay_seen_${PRODUCT_ID}`, Date.now());
+      localStorage.setItem(`mysellkit_seen_${PRODUCT_ID}`, Date.now());
     }
   }
   
   function hidePopup() {
-    const overlay = document.getElementById('floatypay-widget');
+    const overlay = document.getElementById('mysellkit-widget');
     if (!overlay) return;
     
     overlay.classList.remove('visible');
     
     // Don't save to sessionStorage in debug mode
     if (!DEBUG_MODE) {
-      sessionStorage.setItem(`floatypay_closed_${PRODUCT_ID}`, 'true');
+      sessionStorage.setItem(`mysellkit_closed_${PRODUCT_ID}`, 'true');
     }
   }
 
@@ -523,11 +564,11 @@
   
   async function init() {
     if (DEBUG_MODE) {
-      console.log('🚀 FloatyPay Widget initializing...');
+      console.log('🚀 MySellKit Widget initializing...');
     }
     
     if (!PRODUCT_ID) {
-      console.error('FloatyPay: Missing data-product attribute');
+      console.error('MySellKit: Missing data-product attribute');
       return;
     }
     
@@ -537,7 +578,7 @@
     
     widgetConfig = await fetchWidgetConfig();
     if (!widgetConfig) {
-      console.error('FloatyPay: Failed to load widget config');
+      console.error('MySellKit: Failed to load widget config');
       return;
     }
     
@@ -546,7 +587,7 @@
     setupTriggers(widgetConfig);
     
     if (DEBUG_MODE) {
-      console.log('✅ FloatyPay Widget initialized successfully');
+      console.log('✅ MySellKit Widget initialized successfully');
     }
   }
   
@@ -557,3 +598,22 @@
   }
   
 })();
+```
+
+---
+
+## ✅ **CHANGEMENTS EFFECTUÉS:**
+
+1. **✅ Domaine:** `aureo.page` → `mysellkit.com`
+2. **✅ Session prefix:** `floatypay_` → `mysellkit_`
+3. **✅ Session ID:** `fp_` → `msk_`
+4. **✅ URL param test:** `floatypay_test` → `mysellkit_test`
+5. **✅ CSS classes:** `floatypay-*` → `mysellkit-*`
+6. **✅ Console logs:** "FloatyPay" → "MySellKit"
+7. **✅ Ajout checkout logic:** Button CTA call API `create-checkout-session` puis redirect Stripe
+
+---
+
+## 📝 **NOUVELLE URL CDN:**
+```
+https://cdn.jsdelivr.net/gh/mysellkit/widget@v1.1.0/widget.js

@@ -13,6 +13,14 @@
   let widgetConfig = null;
   let widgetShown = false;
   let sessionId = null;
+  
+  // Check debug mode
+  const urlParams = new URLSearchParams(window.location.search);
+  const DEBUG_MODE = urlParams.get('debug') === 'true';
+  
+  if (DEBUG_MODE) {
+    console.log('🔧 FloatyPay DEBUG MODE ENABLED');
+  }
 
   // ============================================
   // SESSION MANAGEMENT
@@ -28,6 +36,10 @@
       sessionStorage.setItem('floatypay_session', sessionId);
     }
     
+    if (DEBUG_MODE) {
+      console.log('🔑 Session ID:', sessionId);
+    }
+    
     return sessionId;
   }
 
@@ -36,13 +48,21 @@
   // ============================================
   
   function shouldShowWidget() {
+    // Debug mode: toujours montrer
+    if (DEBUG_MODE) {
+      console.log('✅ Debug mode: Widget will show');
+      return true;
+    }
+    
     const lastSeen = localStorage.getItem(`floatypay_seen_${PRODUCT_ID}`);
     if (lastSeen && Date.now() - lastSeen < 86400000) {
+      console.log('❌ Widget already seen in last 24h');
       return false;
     }
     
     const closedThisSession = sessionStorage.getItem(`floatypay_closed_${PRODUCT_ID}`);
     if (closedThisSession) {
+      console.log('❌ Widget closed this session');
       return false;
     }
     
@@ -55,8 +75,16 @@
   
   async function fetchWidgetConfig() {
     try {
+      if (DEBUG_MODE) {
+        console.log('📡 Fetching config for product:', PRODUCT_ID);
+      }
+      
       const response = await fetch(`${API_BASE}/get-widget-config?product_id=${PRODUCT_ID}`);
       const data = await response.json();
+      
+      if (DEBUG_MODE) {
+        console.log('📦 Config received:', data);
+      }
       
       if (data.response && data.response.success === 'yes') {
         if (data.response.image && data.response.image.startsWith('//')) {
@@ -79,6 +107,10 @@
   
   async function trackEvent(eventType) {
     try {
+      if (DEBUG_MODE) {
+        console.log('📊 Tracking event:', eventType);
+      }
+      
       await fetch(`${API_BASE}/track-event`, {
         method: 'POST',
         headers: {
@@ -93,6 +125,10 @@
           user_agent: navigator.userAgent
         })
       });
+      
+      if (DEBUG_MODE) {
+        console.log('✅ Event tracked:', eventType);
+      }
     } catch (error) {
       console.error('FloatyPay: Failed to track event', error);
     }
@@ -213,6 +249,20 @@
         box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
       }
       
+      .floatypay-debug-badge {
+        position: fixed;
+        bottom: 10px;
+        left: 10px;
+        background: #ff6b6b;
+        color: white;
+        padding: 8px 12px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: bold;
+        z-index: 9999999;
+        font-family: monospace;
+      }
+      
       @keyframes floatypay-fadeIn {
         from { opacity: 0; }
         to { opacity: 1; }
@@ -262,6 +312,14 @@
     `;
     
     document.head.appendChild(style);
+    
+    // Add debug badge if in debug mode
+    if (DEBUG_MODE) {
+      const badge = document.createElement('div');
+      badge.className = 'floatypay-debug-badge';
+      badge.textContent = '🔧 DEBUG MODE';
+      document.body.appendChild(badge);
+    }
   }
 
   // ============================================
@@ -269,6 +327,10 @@
   // ============================================
   
   function createPopup(config) {
+    if (DEBUG_MODE) {
+      console.log('🎨 Creating popup with config:', config);
+    }
+    
     const overlay = document.createElement('div');
     overlay.className = 'floatypay-overlay';
     overlay.id = 'floatypay-widget';
@@ -297,18 +359,30 @@
   
   function setupEventListeners(overlay, config) {
     overlay.querySelector('.floatypay-close').addEventListener('click', () => {
+      if (DEBUG_MODE) {
+        console.log('❌ Close button clicked');
+      }
       hidePopup();
     });
     
     overlay.addEventListener('click', (e) => {
       if (e.target === overlay) {
+        if (DEBUG_MODE) {
+          console.log('❌ Overlay clicked (close)');
+        }
         hidePopup();
       }
     });
     
     overlay.querySelector('.floatypay-cta').addEventListener('click', () => {
+      if (DEBUG_MODE) {
+        console.log('🛒 CTA button clicked');
+      }
       trackEvent('click');
       const checkoutUrl = `${CHECKOUT_BASE}/${PRODUCT_ID}?session=${getSessionId()}`;
+      if (DEBUG_MODE) {
+        console.log('🔗 Redirecting to:', checkoutUrl);
+      }
       window.location.href = checkoutUrl;
     });
   }
@@ -318,17 +392,33 @@
   // ============================================
   
   function showPopup() {
-    if (widgetShown) return;
-    if (!shouldShowWidget()) return;
+    if (widgetShown) {
+      if (DEBUG_MODE) {
+        console.log('⚠️ Widget already shown');
+      }
+      return;
+    }
+    
+    if (!shouldShowWidget()) {
+      return;
+    }
     
     const overlay = document.getElementById('floatypay-widget');
     if (!overlay) return;
+    
+    if (DEBUG_MODE) {
+      console.log('🎉 Showing widget!');
+    }
     
     overlay.classList.add('visible');
     widgetShown = true;
     
     trackEvent('impression');
-    localStorage.setItem(`floatypay_seen_${PRODUCT_ID}`, Date.now());
+    
+    // Don't save to localStorage in debug mode
+    if (!DEBUG_MODE) {
+      localStorage.setItem(`floatypay_seen_${PRODUCT_ID}`, Date.now());
+    }
   }
   
   function hidePopup() {
@@ -336,7 +426,11 @@
     if (!overlay) return;
     
     overlay.classList.remove('visible');
-    sessionStorage.setItem(`floatypay_closed_${PRODUCT_ID}`, 'true');
+    
+    // Don't save to sessionStorage in debug mode
+    if (!DEBUG_MODE) {
+      sessionStorage.setItem(`floatypay_closed_${PRODUCT_ID}`, 'true');
+    }
   }
 
   // ============================================
@@ -344,6 +438,10 @@
   // ============================================
   
   function setupTriggers(config) {
+    if (DEBUG_MODE) {
+      console.log('⚡ Setting up trigger:', config.trigger_type, 'with value:', config.trigger_value);
+    }
+    
     switch(config.trigger_type) {
       case 'scroll':
         setupScrollTrigger(config.trigger_value);
@@ -355,16 +453,31 @@
         setupExitTrigger();
         break;
       default:
+        if (DEBUG_MODE) {
+          console.log('⚠️ Unknown trigger type, defaulting to 5s time trigger');
+        }
         setupTimeTrigger(5);
     }
   }
   
   function setupScrollTrigger(percentage) {
+    if (DEBUG_MODE) {
+      console.log(`📜 Scroll trigger set at ${percentage}%`);
+    }
+    
     let triggered = false;
     window.addEventListener('scroll', () => {
       if (triggered) return;
       const scrollPercent = (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100;
+      
+      if (DEBUG_MODE && scrollPercent % 10 < 1) {
+        console.log(`📜 Current scroll: ${scrollPercent.toFixed(0)}%`);
+      }
+      
       if (scrollPercent >= percentage) {
+        if (DEBUG_MODE) {
+          console.log(`✅ Scroll trigger activated at ${scrollPercent.toFixed(0)}%`);
+        }
         showPopup();
         triggered = true;
       }
@@ -372,16 +485,31 @@
   }
   
   function setupTimeTrigger(seconds) {
+    if (DEBUG_MODE) {
+      console.log(`⏱️ Time trigger set for ${seconds} seconds`);
+    }
+    
     setTimeout(() => {
+      if (DEBUG_MODE) {
+        console.log(`✅ Time trigger activated after ${seconds}s`);
+      }
       showPopup();
     }, seconds * 1000);
   }
   
   function setupExitTrigger() {
+    if (DEBUG_MODE) {
+      console.log('🚪 Exit intent trigger set');
+    }
+    
     let triggered = false;
     document.addEventListener('mouseleave', (e) => {
       if (triggered) return;
       if (e.clientY > 10) return;
+      
+      if (DEBUG_MODE) {
+        console.log('✅ Exit intent trigger activated');
+      }
       showPopup();
       triggered = true;
     });
@@ -392,17 +520,32 @@
   // ============================================
   
   async function init() {
+    if (DEBUG_MODE) {
+      console.log('🚀 FloatyPay Widget initializing...');
+    }
+    
     if (!PRODUCT_ID) {
       console.error('FloatyPay: Missing data-product attribute');
       return;
     }
     
+    if (DEBUG_MODE) {
+      console.log('📦 Product ID:', PRODUCT_ID);
+    }
+    
     widgetConfig = await fetchWidgetConfig();
-    if (!widgetConfig) return;
+    if (!widgetConfig) {
+      console.error('FloatyPay: Failed to load widget config');
+      return;
+    }
     
     injectCSS();
     createPopup(widgetConfig);
     setupTriggers(widgetConfig);
+    
+    if (DEBUG_MODE) {
+      console.log('✅ FloatyPay Widget initialized successfully');
+    }
   }
   
   if (document.readyState === 'loading') {

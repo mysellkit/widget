@@ -16,7 +16,7 @@
   
   // Check debug mode
   const urlParams = new URLSearchParams(window.location.search);
-  const DEBUG_MODE = urlParams.get('debug') === 'true';
+  const DEBUG_MODE = urlParams.get('debug') === 'true' || urlParams.get('debug_mode') === 'true';
   
   if (DEBUG_MODE) {
     console.log('🔧 FloatyPay DEBUG MODE ENABLED');

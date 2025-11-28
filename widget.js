@@ -461,7 +461,7 @@
         overflow-y: auto;
         display: flex;
         flex-direction: column;
-        gap: 28px;
+        gap: 16px;
       }
       
       /* Description */
@@ -528,7 +528,7 @@
       }
       
       .mysellkit-included-item {
-        height: 54px;
+        min-height: 54px;
         background: #FFFFFF;
         border-radius: 10px;
         padding: 10px;
@@ -567,6 +567,7 @@
         font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
         font-weight: 500;
         font-size: 14px;
+        line-height: 1.5;
         color: #374151;
         flex: 1;
         overflow: hidden;
@@ -1072,17 +1073,6 @@
   // ============================================
   
   function showPopup() {
-    if (popupShown) {
-      if (DEBUG_MODE) {
-        console.log('⚠️ Popup already shown');
-      }
-      return;
-    }
-    
-    if (!shouldShowWidget()) {
-      return;
-    }
-    
     const overlay = document.getElementById('mysellkit-widget');
     if (!overlay) return;
     
@@ -1093,7 +1083,11 @@
     overlay.classList.add('visible');
     popupShown = true;
     
-    trackEvent('impression');
+    // Track impression only on first show
+    if (!sessionStorage.getItem(`mysellkit_impression_${PRODUCT_ID}`)) {
+      trackEvent('impression');
+      sessionStorage.setItem(`mysellkit_impression_${PRODUCT_ID}`, 'true');
+    }
     
     // Don't save to localStorage in debug mode
     if (!DEBUG_MODE) {
@@ -1140,6 +1134,11 @@
   function setupTriggers(config) {
     if (DEBUG_MODE) {
       console.log('⚡ Setting up trigger:', config.trigger_type, 'with value:', config.trigger_value);
+    }
+    
+    // Only setup triggers if popup hasn't been shown yet
+    if (!shouldShowWidget()) {
+      return;
     }
     
     switch(config.trigger_type) {

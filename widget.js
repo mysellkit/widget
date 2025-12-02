@@ -9,7 +9,7 @@
   const PRODUCT_ID = SCRIPT_TAG.getAttribute('data-product');
   const API_BASE = 'https://mysellkit.com/version-test/api/1.1/wf';
   const CHECKOUT_BASE = 'https://mysellkit.com/version-test';
-  const WIDGET_VERSION = '1.1.10';
+  const WIDGET_VERSION = '1.1.12';
   
   let widgetConfig = null;
   let popupShown = false;
@@ -305,8 +305,11 @@
   // RENDER INCLUDED ITEMS
   // ============================================
   
-  function renderIncludedItems(items) {
+  function renderIncludedItems(items, includedTitle) {
     if (!items || items.length === 0) return '';
+    
+    // Default title if not provided
+    const title = includedTitle || "📦 What's Included:";
     
     const itemsHTML = items.map(item => {
       // Detect file type from extension
@@ -327,7 +330,7 @@
     
     return `
       <div class="mysellkit-included">
-        <h3 class="mysellkit-included-title">📦 What's Included:</h3>
+        <h3 class="mysellkit-included-title">${title}</h3>
         <div class="mysellkit-included-items">
           ${itemsHTML}
         </div>
@@ -540,7 +543,7 @@
         position: relative;
         width: 100%;
         aspect-ratio: 4/3;
-        margin-bottom: 12px;
+        margin-bottom: 16px;
       }
       
       .mysellkit-image-wrapper.no-image {
@@ -580,7 +583,7 @@
       .mysellkit-bottom-section {
         display: flex;
         flex-direction: column;
-        gap: 12px;
+        gap: 16px;
       }
       
       /* Price */
@@ -615,7 +618,7 @@
       .mysellkit-cta-section {
         display: flex;
         flex-direction: column;
-        gap: 10px;
+        gap: 8px;
       }
       
       .mysellkit-cta {
@@ -722,7 +725,7 @@
         overflow-y: auto;
         display: flex;
         flex-direction: column;
-        gap: 16px;
+        gap: 24px;
       }
       
       /* Description */
@@ -783,6 +786,11 @@
         color: ${textColor};
       }
       
+      .mysellkit-description ul li p {
+        display: inline;
+        margin: 0;
+      }
+      
       .mysellkit-description ol {
         counter-reset: item;
       }
@@ -801,6 +809,11 @@
         display: inline-block;
         width: 1.5em;
         margin-left: -1.5em;
+      }
+      
+      .mysellkit-description ol li p {
+        display: inline;
+        margin: 0;
       }
       
       /* Divider */
@@ -834,7 +847,7 @@
       
       .mysellkit-included-item {
         min-height: 54px;
-        background: #FFFFFF;
+        background: ${leftBg};
         border-radius: 10px;
         padding: 10px;
         display: flex;
@@ -845,7 +858,7 @@
       }
       
       .mysellkit-included-item:hover {
-        background: #FAFAFA;
+        background: ${leftBg};
         transform: translateX(4px);
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
         border-color: ${primaryColor}33;
@@ -1083,22 +1096,18 @@
         
         .mysellkit-price-container {
           margin-top: 0;
-          margin-bottom: 24px;
-          padding-bottom: 24px;
-          border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+          margin-bottom: 0;
         }
         
         .mysellkit-price-container.no-price {
           display: none;
           margin-bottom: 0;
-          padding-bottom: 0;
-          border-bottom: none;
         }
         
         .mysellkit-mobile-content {
           display: flex;
           flex-direction: column;
-          gap: 28px;
+          gap: 24px;
           margin-bottom: 24px;
           padding-bottom: 24px;
         }
@@ -1108,12 +1117,12 @@
           bottom: 0;
           left: 0;
           right: 0;
-          background: white;
+          background: ${leftBg};
           padding: 16px 20px 20px;
           box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.08);
           border-top: 1px solid rgba(0, 0, 0, 0.06);
           z-index: 50;
-          gap: 8px;
+          gap: 16px;
         }
         
         .mysellkit-cta-section {
@@ -1219,7 +1228,7 @@
     
     // Included items HTML
     const includedHTML = config.included_items && config.included_items.length > 0 
-      ? renderIncludedItems(config.included_items)
+      ? renderIncludedItems(config.included_items, config.included_title)
       : '';
     
     // Description HTML

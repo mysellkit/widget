@@ -9,7 +9,7 @@
   const PRODUCT_ID = SCRIPT_TAG.getAttribute('data-product');
   const API_BASE = 'https://mysellkit.com/version-test/api/1.1/wf';
   const CHECKOUT_BASE = 'https://mysellkit.com/version-test';
-  const WIDGET_VERSION = '1.1.14';
+  const WIDGET_VERSION = '1.1.15';
   
   let widgetConfig = null;
   let popupShown = false;
@@ -725,7 +725,7 @@
         overflow-y: auto;
         display: flex;
         flex-direction: column;
-        gap: 24px;
+        gap: 54px;
       }
       
       /* Description */
@@ -1066,13 +1066,13 @@
           padding: 20px 20px 0 20px;
           display: block;
           overflow-y: auto;
-          padding-bottom: 186px;
+          padding-bottom: 126px;
           background: ${rightBg};
         }
         
         /* When price is hidden, reduce padding */
         .mysellkit-left.no-price-mobile {
-          padding-bottom: 136px;
+          padding-bottom: 82px;
         }
         
         .mysellkit-right {
@@ -1113,7 +1113,7 @@
         .mysellkit-mobile-content {
           display: flex;
           flex-direction: column;
-          gap: 24px;
+          gap: 54px;
           margin-bottom: 24px;
           padding-bottom: 24px;
         }

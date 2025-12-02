@@ -9,7 +9,7 @@
   const PRODUCT_ID = SCRIPT_TAG.getAttribute('data-product');
   const API_BASE = 'https://mysellkit.com/version-test/api/1.1/wf';
   const CHECKOUT_BASE = 'https://mysellkit.com/version-test';
-  const WIDGET_VERSION = '1.1.13';
+  const WIDGET_VERSION = '1.1.14';
   
   let widgetConfig = null;
   let popupShown = false;
@@ -834,7 +834,7 @@
       .mysellkit-included-title {
         font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
         font-weight: 600;
-        font-size: 16px;
+        font-size: 18px;
         color: ${textColor};
         margin-bottom: 4px;
       }
@@ -1066,8 +1066,13 @@
           padding: 20px 20px 0 20px;
           display: block;
           overflow-y: auto;
-          padding-bottom: 114px;
+          padding-bottom: 186px;
           background: ${rightBg};
+        }
+        
+        /* When price is hidden, reduce padding */
+        .mysellkit-left.no-price-mobile {
+          padding-bottom: 136px;
         }
         
         .mysellkit-right {
@@ -1243,6 +1248,7 @@
     // Price display
     const showPrice = config.show_price === 'yes';
     const priceContainerClass = showPrice ? 'mysellkit-price-container' : 'mysellkit-price-container no-price';
+    const leftColumnClass = showPrice ? 'mysellkit-left' : 'mysellkit-left no-price-mobile';
     const priceHTML = showPrice ? `
       <div class="${priceContainerClass}">
         <span class="mysellkit-price-current">${config.currency}${config.price}</span>
@@ -1262,7 +1268,7 @@
         
         <button class="mysellkit-close" aria-label="Close">×</button>
         
-        <div class="mysellkit-left">
+        <div class="${leftColumnClass}">
           
           <div class="mysellkit-top">
             <div class="${imageWrapperClass}">

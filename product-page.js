@@ -5,14 +5,10 @@
   // CONFIGURATION
   // ============================================
 
-  const SCRIPT_TAG = document.currentScript;
-  const PRODUCT_ID = SCRIPT_TAG.getAttribute('data-product');
-  const BUTTON_ID = SCRIPT_TAG.getAttribute('data-button-id');
   const API_BASE = 'https://mysellkit.com/version-test/api/1.1/wf';
   const CHECKOUT_BASE = 'https://mysellkit.com/version-test';
-  const WIDGET_VERSION = '1.2.2';
+  const WIDGET_VERSION = '1.2.3';
 
-  let widgetConfig = null;
   let sessionId = null;
 
   // Check debug mode from multiple sources
@@ -21,17 +17,10 @@
                      window.location.pathname.includes('/demo/');
   const DEBUG_MODE = urlParams.get('debug') === 'true' ||
                      urlParams.get('mysellkit_test') === 'true' ||
-                     SCRIPT_TAG.getAttribute('data-debug') === 'true' ||
                      isDemoPage;
 
   if (DEBUG_MODE) {
     console.log(`🔧 MySellKit Product Page DEBUG MODE ENABLED (v${WIDGET_VERSION})`);
-  }
-
-  // Validate required attributes
-  if (!PRODUCT_ID || !BUTTON_ID) {
-    console.error('product-page.js requires data-product and data-button-id attributes');
-    return;
   }
 
   // ============================================
@@ -105,13 +94,13 @@
   // FETCH WIDGET CONFIG
   // ============================================
 
-  async function fetchWidgetConfig() {
+  async function fetchWidgetConfig(productId) {
     try {
       if (DEBUG_MODE) {
-        console.log('📡 Fetching config for product:', PRODUCT_ID);
+        console.log('📡 Fetching config for product:', productId);
       }
 
-      const response = await fetch(`${API_BASE}/get-widget-config?product_id=${PRODUCT_ID}`);
+      const response = await fetch(`${API_BASE}/get-widget-config?product_id=${productId}`);
       const data = await response.json();
 
       if (DEBUG_MODE) {
@@ -839,50 +828,44 @@
   // CREATE FULLSCREEN PRODUCT PAGE
   // ============================================
 
-  function createProductPage(config) {
+  function createProductPage(productData, displayConfig) {
     if (DEBUG_MODE) {
-      console.log('🎨 Creating fullscreen product page with config:', config);
+      console.log('🎨 Creating fullscreen product page');
+      console.log('Product data:', productData);
+      console.log('Display config:', displayConfig);
     }
 
     const overlay = document.createElement('div');
     overlay.className = 'mysellkit-product-overlay';
     overlay.id = 'mysellkit-product-page-overlay';
 
-    // Apply CSS variables from config
-    const primaryColor = config.primary_color || '#00D66F';
-    const leftBg = config.left_background || '#FFFFFF';
-    const rightBg = config.right_background || '#F9FAFB';
-    const textColor = config.text_color || '#1F2937';
-    const textColorLight = config.text_color_light || '#9CA3AF';
-    const ctaTextColor = config.cta_text_color || '#000000';
-
-    overlay.style.setProperty('--msk-primary-color', primaryColor);
-    overlay.style.setProperty('--msk-left-bg', leftBg);
-    overlay.style.setProperty('--msk-right-bg', rightBg);
-    overlay.style.setProperty('--msk-text-color', textColor);
-    overlay.style.setProperty('--msk-text-color-light', textColorLight);
-    overlay.style.setProperty('--msk-cta-text-color', ctaTextColor);
+    // Apply CSS variables from displayConfig (passed from button attributes)
+    overlay.style.setProperty('--msk-primary-color', displayConfig.colors.primary);
+    overlay.style.setProperty('--msk-left-bg', displayConfig.colors.left);
+    overlay.style.setProperty('--msk-right-bg', displayConfig.colors.right);
+    overlay.style.setProperty('--msk-text-color', displayConfig.colors.text);
+    overlay.style.setProperty('--msk-text-color-light', displayConfig.colors.textLight);
+    overlay.style.setProperty('--msk-cta-text-color', displayConfig.colors.ctaText);
 
     // Included items HTML
-    const includedHTML = config.included_items && config.included_items.length > 0
-      ? renderIncludedItems(config.included_items, config.included_title)
+    const includedHTML = productData.included_items && productData.included_items.length > 0
+      ? renderIncludedItems(productData.included_items, productData.included_title)
       : '';
 
     // Description HTML
-    const descriptionHTML = config.description_html || '';
+    const descriptionHTML = productData.description_html || '';
 
     // Check if image exists
-    const hasImage = config.image && config.image.trim() !== '';
+    const hasImage = productData.image && productData.image.trim() !== '';
     const imageWrapperClass = hasImage ? 'mysellkit-image-wrapper' : 'mysellkit-image-wrapper no-image';
-    const imageHTML = hasImage ? `<img src="${config.image}" alt="${config.title}" class="mysellkit-image" />` : '';
+    const imageHTML = hasImage ? `<img src="${productData.image}" alt="${productData.title}" class="mysellkit-image" />` : '';
 
-    // Price display
-    const showPrice = config.show_price === 'yes';
-    const priceContainerClass = showPrice ? 'mysellkit-price-container' : 'mysellkit-price-container no-price';
-    const priceHTML = showPrice ? `
+    // Price display (use displayConfig.showPrice from button's data-show-price attribute)
+    const priceContainerClass = displayConfig.showPrice ? 'mysellkit-price-container' : 'mysellkit-price-container no-price';
+    const priceHTML = displayConfig.showPrice ? `
       <div class="${priceContainerClass}">
-        <span class="mysellkit-price-current">${config.currency}${config.price}</span>
-        ${config.old_price ? `<span class="mysellkit-price-old">${config.currency}${config.old_price}</span>` : ''}
+        <span class="mysellkit-price-current">${productData.currency}${productData.price}</span>
+        ${productData.old_price ? `<span class="mysellkit-price-old">${productData.currency}${productData.old_price}</span>` : ''}
       </div>
     ` : '';
 
@@ -897,7 +880,7 @@
             <div class="${imageWrapperClass}">
               ${imageHTML}
             </div>
-            <h2 class="mysellkit-title">${config.title}</h2>
+            <h2 class="mysellkit-title">${productData.title}</h2>
           </div>
 
           <div class="mysellkit-mobile-content">
@@ -909,7 +892,7 @@
             ${priceHTML}
             <div class="mysellkit-cta-section">
               <button class="mysellkit-cta">
-                <span class="mysellkit-cta-text">${config.cta_text || 'Get Instant Access'}</span>
+                <span class="mysellkit-cta-text">${productData.cta_text || 'Get Instant Access'}</span>
                 <span class="mysellkit-cta-arrow">→</span>
               </button>
               <p class="mysellkit-powered">
@@ -930,20 +913,22 @@
 
     document.body.appendChild(overlay);
 
-    setupEventListeners(overlay, config);
+    setupEventListeners(overlay, productData);
   }
 
   // ============================================
   // EVENT LISTENERS
   // ============================================
 
-  function setupEventListeners(overlay, config) {
+  function setupEventListeners(overlay, productData) {
+    const productId = productData.product_id;
+
     // Close button
     overlay.querySelector('.mysellkit-close').addEventListener('click', () => {
       if (DEBUG_MODE) {
         console.log('❌ Close button clicked');
       }
-      trackEvent('close');
+      trackEvent(productId, 'close');
       hideProductPage();
     });
 
@@ -953,7 +938,7 @@
         if (DEBUG_MODE) {
           console.log('❌ Overlay clicked (close)');
         }
-        trackEvent('close');
+        trackEvent(productId, 'close');
         hideProductPage();
       }
     });
@@ -965,7 +950,7 @@
       }
 
       const button = e.target.closest('.mysellkit-cta');
-      await performCheckout(button, config);
+      await performCheckout(button, productId, productData);
     });
   }
 
@@ -973,13 +958,13 @@
   // PERFORM CHECKOUT
   // ============================================
 
-  async function performCheckout(buttonElement, config) {
+  async function performCheckout(buttonElement, productId, productData) {
     if (DEBUG_MODE) {
       console.log('🛒 Starting checkout process');
     }
 
     // Check if product is in draft mode
-    if (config && config.is_live !== 'yes') {
+    if (productData && productData.is_live !== 'yes') {
       if (DEBUG_MODE) {
         console.log('🚧 Cannot checkout: Product is in DRAFT mode');
       }
@@ -995,7 +980,7 @@
     }
 
     // Track click with purchase token
-    trackEvent('click', {
+    trackEvent(productId, 'click', {
       purchase_token: purchaseToken,
       display_mode: 'fullscreen'
     });
@@ -1021,7 +1006,7 @@
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          product_id: PRODUCT_ID,
+          product_id: productId,
           session_id: getSessionId(),
           purchase_token: purchaseToken,
           success_url: `${CHECKOUT_BASE}/payment-processing?token=${purchaseToken}`,
@@ -1091,8 +1076,7 @@
 
     overlay.classList.add('visible');
 
-    // Track impression
-    trackEvent('impression', { display_mode: 'fullscreen' });
+    // Note: productId will be stored in overlay's data attribute and tracked on show
   }
 
   function hideProductPage() {
@@ -1103,28 +1087,114 @@
   }
 
   // ============================================
-  // ATTACH MANUAL TRIGGER (data-button-id)
+  // OPEN PRODUCT PAGE (called by button click)
   // ============================================
 
-  function attachManualTrigger() {
-    const button = document.getElementById(BUTTON_ID);
-    if (!button) {
-      console.warn(`MySellKit: Button #${BUTTON_ID} not found on page`);
+  async function openProductPage(productId, displayConfig) {
+    if (DEBUG_MODE) {
+      console.log('🚀 Opening product page for:', productId);
+      console.log('Display config:', displayConfig);
+    }
+
+    try {
+      // Fetch product data from API
+      const productData = await fetchWidgetConfig(productId);
+      if (!productData) {
+        console.error('MySellKit: Failed to load product data');
+        showToast('Failed to load product. Please try again.', 'error');
+        return;
+      }
+
+      // Check if product is live
+      if (productData.is_live !== 'yes' && !DEBUG_MODE) {
+        console.log('🚧 Product is in DRAFT mode - not showing in production');
+        return;
+      }
+
+      if (productData.is_live !== 'yes' && DEBUG_MODE) {
+        console.log('🚧 DRAFT MODE: Product is not live. Checkout disabled. Widget will still display in debug mode.');
+      }
+
+      // Store productId in productData for later use
+      productData.product_id = productId;
+
+      // Create and show the product page
+      createProductPage(productData, displayConfig);
+      showProductPage();
+
+      // Track impression
+      trackEvent(productId, 'impression', { display_mode: 'fullscreen' });
+
+    } catch (error) {
+      console.error('MySellKit: Error opening product page', error);
+      showToast('An error occurred. Please try again.', 'error');
+    }
+  }
+
+  // ============================================
+  // ATTACH PRODUCT PAGE BUTTONS
+  // ============================================
+
+  function attachProductPageButtons() {
+    const buttons = document.querySelectorAll('[data-mysellkit-page]');
+
+    if (DEBUG_MODE) {
+      console.log(`🔍 Found ${buttons.length} product page button(s)`);
+    }
+
+    if (buttons.length === 0) {
+      if (DEBUG_MODE) {
+        console.log('⚠️ No [data-mysellkit-page] buttons found on page');
+      }
       return;
     }
 
-    // Add cursor pointer
-    button.style.cursor = 'pointer';
+    buttons.forEach(button => {
+      const productId = button.getAttribute('data-mysellkit-page');
 
-    button.addEventListener('click', () => {
-      if (DEBUG_MODE) {
-        console.log(`✅ Manual trigger button #${BUTTON_ID} clicked`);
+      if (!productId) {
+        console.warn('MySellKit: Button has data-mysellkit-page but no product ID');
+        return;
       }
-      showProductPage();
+
+      // Read display config from button's data attributes
+      const showPrice = button.getAttribute('data-show-price') !== 'no';
+      const colorPrimary = button.getAttribute('data-color-primary') || '#00D66F';
+      const colorLeft = button.getAttribute('data-color-left') || '#FFFFFF';
+      const colorRight = button.getAttribute('data-color-right') || '#F9FAFB';
+      const colorText = button.getAttribute('data-color-text') || '#1F2937';
+      const colorTextLight = button.getAttribute('data-color-text-light') || '#9CA3AF';
+      const colorCtaText = button.getAttribute('data-color-cta-text') || '#000000';
+
+      // Add cursor pointer
+      button.style.cursor = 'pointer';
+
+      // Attach click handler
+      button.addEventListener('click', async () => {
+        if (DEBUG_MODE) {
+          console.log(`✅ Product page button clicked for product ${productId}`);
+        }
+
+        await openProductPage(productId, {
+          showPrice,
+          colors: {
+            primary: colorPrimary,
+            left: colorLeft,
+            right: colorRight,
+            text: colorText,
+            textLight: colorTextLight,
+            ctaText: colorCtaText
+          }
+        });
+      });
+
+      if (DEBUG_MODE) {
+        console.log(`✅ Attached product page to button for product ${productId}`);
+      }
     });
 
     if (DEBUG_MODE) {
-      console.log(`✅ MySellKit product-page attached to button #${BUTTON_ID}`);
+      console.log(`✅ Attached ${buttons.length} product page button(s)`);
     }
   }
 
@@ -1132,59 +1202,23 @@
   // INIT
   // ============================================
 
-  async function init() {
+  function init() {
     if (DEBUG_MODE) {
       console.log(`🚀 MySellKit Product Page v${WIDGET_VERSION} initializing...`);
     }
 
-    if (!PRODUCT_ID) {
-      console.error('MySellKit: Missing data-product attribute');
-      return;
-    }
-
-    if (!BUTTON_ID) {
-      console.error('MySellKit: Missing data-button-id attribute (required for product-page.js)');
-      return;
-    }
-
-    if (DEBUG_MODE) {
-      console.log('📦 Product ID:', PRODUCT_ID);
-      console.log('🔘 Button ID:', BUTTON_ID);
-    }
-
-    // Fetch config first
-    widgetConfig = await fetchWidgetConfig();
-    if (!widgetConfig) {
-      console.error('MySellKit: Failed to load widget config');
-      return;
-    }
-
-    // Check if product is live
-    if (widgetConfig.is_live !== 'yes' && !DEBUG_MODE) {
-      console.log('🚧 Product is in DRAFT mode - widget will not load in production');
-      return;
-    }
-
-    if (widgetConfig.is_live !== 'yes' && DEBUG_MODE) {
-      console.log('🚧 DRAFT MODE: Product is not live. Checkout disabled. Widget will still display in debug mode.');
-    }
-
     // Inject CSS
     injectCSS();
-    createProductPage(widgetConfig);
 
-    // Attach manual trigger with button ID
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', attachManualTrigger);
-    } else {
-      attachManualTrigger();
-    }
+    // Attach product page buttons
+    attachProductPageButtons();
 
     if (DEBUG_MODE) {
       console.log('✅ MySellKit Product Page initialized successfully');
     }
   }
 
+  // Run on DOM ready
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
   } else {

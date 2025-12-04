@@ -7,12 +7,28 @@
 
   const SCRIPT_TAG = document.currentScript;
   const PRODUCT_ID = SCRIPT_TAG.getAttribute('data-product');
-  const TRIGGER_MODE = SCRIPT_TAG.getAttribute('data-trigger') || 'auto';
-  const DATA_PERSISTENT = SCRIPT_TAG.getAttribute('data-persistent'); // 'yes' or 'no'
-  const BUTTON_ID = SCRIPT_TAG.getAttribute('data-button-id');
   const API_BASE = 'https://mysellkit.com/version-test/api/1.1/wf';
   const CHECKOUT_BASE = 'https://mysellkit.com/version-test';
-  const WIDGET_VERSION = '1.2.2';
+  const WIDGET_VERSION = '1.2.3';
+
+  // Trigger config
+  const TRIGGER_TYPE = SCRIPT_TAG.getAttribute('data-trigger') || 'time';
+  const TRIGGER_VALUE = parseInt(SCRIPT_TAG.getAttribute('data-trigger-value')) || 5;
+  const MANUAL_TRIGGER = SCRIPT_TAG.getAttribute('data-trigger') === 'manual';
+  const BUTTON_ID = SCRIPT_TAG.getAttribute('data-button-id');
+
+  // Display config
+  const PERSISTENT_MODE = SCRIPT_TAG.getAttribute('data-persistent') !== 'no';
+  const MOBILE_FLOATING = SCRIPT_TAG.getAttribute('data-mobile-floating') === 'yes';
+  const SHOW_PRICE = SCRIPT_TAG.getAttribute('data-show-price') !== 'no';
+
+  // Colors (with defaults)
+  const COLOR_PRIMARY = SCRIPT_TAG.getAttribute('data-color-primary') || '#00D66F';
+  const COLOR_LEFT = SCRIPT_TAG.getAttribute('data-color-left') || '#FFFFFF';
+  const COLOR_RIGHT = SCRIPT_TAG.getAttribute('data-color-right') || '#F9FAFB';
+  const COLOR_TEXT = SCRIPT_TAG.getAttribute('data-color-text') || '#1F2937';
+  const COLOR_TEXT_LIGHT = SCRIPT_TAG.getAttribute('data-color-text-light') || '#9CA3AF';
+  const COLOR_CTA_TEXT = SCRIPT_TAG.getAttribute('data-color-cta-text') || '#000000';
 
   let widgetConfig = null;
   let popupShown = false;
@@ -85,13 +101,9 @@
   // CHECK PERSISTENT MODE
   // ============================================
 
-  function isPersistentModeEnabled(config) {
-    // data-persistent attribute overrides config
-    if (DATA_PERSISTENT === 'yes') return true;
-    if (DATA_PERSISTENT === 'no') return false;
-
-    // Otherwise use config value
-    return config && config.persistent_mode !== 'no';
+  function isPersistentModeEnabled() {
+    // Use PERSISTENT_MODE constant from data-persistent attribute
+    return PERSISTENT_MODE;
   }
 
   // ============================================
@@ -290,12 +302,12 @@
 
     let triggerInfo = '';
 
-    switch(config.trigger_type) {
+    switch(TRIGGER_TYPE) {
       case 'scroll':
-        triggerInfo = `📜 Scroll: ${currentScrollPercent}% / ${config.trigger_value}%`;
+        triggerInfo = `📜 Scroll: ${currentScrollPercent}% / ${TRIGGER_VALUE}%`;
         break;
       case 'time':
-        triggerInfo = `⏱️ Time: ${currentTimeElapsed}s / ${config.trigger_value}s`;
+        triggerInfo = `⏱️ Time: ${currentTimeElapsed}s / ${TRIGGER_VALUE}s`;
         break;
       case 'exit_intent':
       case 'exit':
@@ -1240,20 +1252,13 @@
     overlay.className = 'mysellkit-overlay';
     overlay.id = 'mysellkit-popup-widget';
 
-    // Apply CSS variables from config
-    const primaryColor = config.primary_color || '#00D66F';
-    const leftBg = config.left_background || '#FFFFFF';
-    const rightBg = config.right_background || '#F9FAFB';
-    const textColor = config.text_color || '#1F2937';
-    const textColorLight = config.text_color_light || '#9CA3AF';
-    const ctaTextColor = config.cta_text_color || '#000000';
-
-    overlay.style.setProperty('--msk-primary-color', primaryColor);
-    overlay.style.setProperty('--msk-left-bg', leftBg);
-    overlay.style.setProperty('--msk-right-bg', rightBg);
-    overlay.style.setProperty('--msk-text-color', textColor);
-    overlay.style.setProperty('--msk-text-color-light', textColorLight);
-    overlay.style.setProperty('--msk-cta-text-color', ctaTextColor);
+    // Apply CSS variables from constants (read from data-* attributes)
+    overlay.style.setProperty('--msk-primary-color', COLOR_PRIMARY);
+    overlay.style.setProperty('--msk-left-bg', COLOR_LEFT);
+    overlay.style.setProperty('--msk-right-bg', COLOR_RIGHT);
+    overlay.style.setProperty('--msk-text-color', COLOR_TEXT);
+    overlay.style.setProperty('--msk-text-color-light', COLOR_TEXT_LIGHT);
+    overlay.style.setProperty('--msk-cta-text-color', COLOR_CTA_TEXT);
 
     // Included items HTML
     const includedHTML = config.included_items && config.included_items.length > 0
@@ -1268,18 +1273,17 @@
     const imageWrapperClass = hasImage ? 'mysellkit-image-wrapper' : 'mysellkit-image-wrapper no-image';
     const imageHTML = hasImage ? `<img src="${config.image}" alt="${config.title}" class="mysellkit-image" />` : '';
 
-    // Price display
-    const showPrice = config.show_price === 'yes';
-    const priceContainerClass = showPrice ? 'mysellkit-price-container' : 'mysellkit-price-container no-price';
-    const leftColumnClass = showPrice ? 'mysellkit-left' : 'mysellkit-left no-price-mobile';
-    const priceHTML = showPrice ? `
+    // Price display (use SHOW_PRICE constant from data-show-price attribute)
+    const priceContainerClass = SHOW_PRICE ? 'mysellkit-price-container' : 'mysellkit-price-container no-price';
+    const leftColumnClass = SHOW_PRICE ? 'mysellkit-left' : 'mysellkit-left no-price-mobile';
+    const priceHTML = SHOW_PRICE ? `
       <div class="${priceContainerClass}">
         <span class="mysellkit-price-current">${config.currency}${config.price}</span>
         ${config.old_price ? `<span class="mysellkit-price-old">${config.currency}${config.old_price}</span>` : ''}
       </div>
     ` : '';
 
-    const floatPriceHTML = showPrice ? `
+    const floatPriceHTML = SHOW_PRICE ? `
       <div class="mysellkit-float-price">
         <span>${config.currency}${config.price}</span>
         ${config.old_price ? `<span class="mysellkit-float-price-old">${config.currency}${config.old_price}</span>` : ''}
@@ -1345,13 +1349,10 @@
     floatingWidget.className = 'mysellkit-floating-widget';
     floatingWidget.id = 'mysellkit-popup-floating';
 
-    // Apply CSS variables to floating widget too
-    const primaryColor = config.primary_color || '#00D66F';
-    const textColor = config.text_color || '#1F2937';
-    const textColorLight = config.text_color_light || '#9CA3AF';
-    floatingWidget.style.setProperty('--msk-primary-color', primaryColor);
-    floatingWidget.style.setProperty('--msk-text-color', textColor);
-    floatingWidget.style.setProperty('--msk-text-color-light', textColorLight);
+    // Apply CSS variables to floating widget too (from constants)
+    floatingWidget.style.setProperty('--msk-primary-color', COLOR_PRIMARY);
+    floatingWidget.style.setProperty('--msk-text-color', COLOR_TEXT);
+    floatingWidget.style.setProperty('--msk-text-color-light', COLOR_TEXT_LIGHT);
 
     // Handle missing image in floating widget - use custom emoji
     const floatingEmoji = config.floating_emoji || '✨';
@@ -1396,7 +1397,7 @@
       hidePopup();
 
       // Only show floating widget if persistent mode is enabled
-      if (isPersistentModeEnabled(config)) {
+      if (isPersistentModeEnabled()) {
         showFloatingWidget();
       }
     });
@@ -1411,7 +1412,7 @@
         hidePopup();
 
         // Only show floating widget if persistent mode is enabled
-        if (isPersistentModeEnabled(config)) {
+        if (isPersistentModeEnabled()) {
           showFloatingWidget();
         }
       }
@@ -1632,7 +1633,7 @@
       showToast('Payment was not completed. You can try again anytime!', 'error');
 
       // Show floating widget if persistent mode is enabled
-      if (widgetConfig && isPersistentModeEnabled(widgetConfig)) {
+      if (widgetConfig && isPersistentModeEnabled()) {
         setTimeout(() => {
           showFloatingWidget();
         }, 500);
@@ -1672,9 +1673,9 @@
   // TRIGGERS
   // ============================================
 
-  function setupTriggers(config) {
+  function setupTriggers() {
     // Skip auto-triggers if manual mode is enabled
-    if (TRIGGER_MODE === 'manual') {
+    if (MANUAL_TRIGGER) {
       if (DEBUG_MODE) {
         console.log('⚙️ Manual trigger mode enabled - skipping automatic triggers');
       }
@@ -1682,7 +1683,7 @@
     }
 
     if (DEBUG_MODE) {
-      console.log('⚡ Setting up trigger:', config.trigger_type, 'with value:', config.trigger_value);
+      console.log('⚡ Setting up trigger:', TRIGGER_TYPE, 'with value:', TRIGGER_VALUE);
     }
 
     // Only setup triggers if this is the first impression of the session
@@ -1695,18 +1696,18 @@
 
     // Check if we should trigger floating widget on mobile instead of popup
     const isMobile = window.innerWidth <= 768;
-    const triggerFloatingOnMobile = config.mobile_trigger_floating === 'yes';
+    const triggerFloatingOnMobile = MOBILE_FLOATING;
 
     if (DEBUG_MODE && isMobile && triggerFloatingOnMobile) {
       console.log('📱 Mobile detected + floating trigger enabled - will show floating widget instead of popup');
     }
 
-    switch(config.trigger_type) {
+    switch(TRIGGER_TYPE) {
       case 'scroll':
-        setupScrollTrigger(config.trigger_value, isMobile && triggerFloatingOnMobile);
+        setupScrollTrigger(TRIGGER_VALUE, isMobile && triggerFloatingOnMobile);
         break;
       case 'time':
-        setupTimeTrigger(config.trigger_value, isMobile && triggerFloatingOnMobile);
+        setupTimeTrigger(TRIGGER_VALUE, isMobile && triggerFloatingOnMobile);
         break;
       case 'exit_intent':
       case 'exit':
@@ -1836,7 +1837,7 @@
   // ============================================
 
   function attachManualTrigger() {
-    if (TRIGGER_MODE !== 'manual' || !BUTTON_ID) return;
+    if (!MANUAL_TRIGGER || !BUTTON_ID) return;
 
     const button = document.getElementById(BUTTON_ID);
     if (!button) {
@@ -1913,7 +1914,7 @@
     createPopup(widgetConfig);
 
     // Attach manual trigger with button ID (if configured)
-    if (TRIGGER_MODE === 'manual' && BUTTON_ID) {
+    if (MANUAL_TRIGGER && BUTTON_ID) {
       if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', attachManualTrigger);
       } else {
@@ -1927,14 +1928,14 @@
         console.log('💬 User already had impression this session - showing floating widget immediately');
       }
       // Only show if persistent mode is enabled
-      if (isPersistentModeEnabled(widgetConfig)) {
+      if (isPersistentModeEnabled()) {
         setTimeout(() => {
           showFloatingWidget();
         }, 100);
       }
     } else {
       // First time in this session - setup triggers
-      setupTriggers(widgetConfig);
+      setupTriggers();
     }
 
     if (DEBUG_MODE) {

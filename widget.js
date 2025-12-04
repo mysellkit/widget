@@ -15,9 +15,10 @@
   const PRODUCT_ID = SCRIPT_TAG.getAttribute('data-product');
   const TRIGGER_MODE = SCRIPT_TAG.getAttribute('data-trigger') || 'auto';
   const DATA_PERSISTENT = SCRIPT_TAG.getAttribute('data-persistent'); // 'yes' or 'no'
+  const BUTTON_ID = SCRIPT_TAG.getAttribute('data-button-id');
   const API_BASE = 'https://mysellkit.com/version-test/api/1.1/wf';
   const CHECKOUT_BASE = 'https://mysellkit.com/version-test';
-  const WIDGET_VERSION = '1.1.17';
+  const WIDGET_VERSION = '1.1.18';
 
   // Unique instance ID for supporting multiple popups per page
   const INSTANCE_ID = `mysellkit-${PRODUCT_ID}`;
@@ -2008,6 +2009,62 @@
   }
 
   // ============================================
+  // ATTACH MANUAL TRIGGER (data-button-id)
+  // ============================================
+
+  function attachManualTrigger() {
+    if (TRIGGER_MODE !== 'manual' || !BUTTON_ID) return;
+
+    const button = document.getElementById(BUTTON_ID);
+    if (!button) {
+      console.warn(`MySellKit: Button #${BUTTON_ID} not found on page`);
+      return;
+    }
+
+    const displayMode = SCRIPT_TAG.getAttribute('data-display') || 'popup';
+
+    button.addEventListener('click', () => {
+      MySellKit.open(PRODUCT_ID, { display: displayMode });
+    });
+
+    if (DEBUG_MODE) {
+      console.log(`✅ MySellKit attached to button #${BUTTON_ID} (${displayMode} mode)`);
+    }
+  }
+
+  // ============================================
+  // ATTACH DATA-ATTRIBUTE CHECKOUT
+  // ============================================
+
+  function attachDataAttributeCheckout() {
+    const buttons = document.querySelectorAll('[data-mysellkit-checkout]');
+
+    if (buttons.length === 0) return;
+
+    buttons.forEach(button => {
+      const productId = button.getAttribute('data-mysellkit-checkout');
+
+      if (!productId) {
+        console.warn('MySellKit: Button has data-mysellkit-checkout but no product ID');
+        return;
+      }
+
+      button.addEventListener('click', (e) => {
+        e.preventDefault();
+        MySellKit.checkout(productId);
+      });
+
+      if (DEBUG_MODE) {
+        console.log(`✅ MySellKit checkout attached to button for product ${productId}`);
+      }
+    });
+
+    if (DEBUG_MODE) {
+      console.log(`✅ Attached ${buttons.length} data-attribute checkout buttons`);
+    }
+  }
+
+  // ============================================
   // WIDGET REGISTRY (for manual trigger mode)
   // ============================================
 
@@ -2174,7 +2231,23 @@
     // Inject CSS with colors from config
     injectCSS(widgetConfig);
     createPopup(widgetConfig);
-    
+
+    // Attach manual trigger with button ID (if configured)
+    if (TRIGGER_MODE === 'manual' && BUTTON_ID) {
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', attachManualTrigger);
+      } else {
+        attachManualTrigger();
+      }
+    }
+
+    // Attach data-attribute checkout buttons (always)
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', attachDataAttributeCheckout);
+    } else {
+      attachDataAttributeCheckout();
+    }
+
     // Check if user already had impression this session
     if (shouldShowFloatingWidget()) {
       if (DEBUG_MODE) {
@@ -2190,7 +2263,7 @@
       // First time in this session - setup triggers
       setupTriggers(widgetConfig);
     }
-    
+
     if (DEBUG_MODE) {
       console.log('✅ MySellKit Widget initialized successfully');
       updateDebugBadge();

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test 2: Button ID with Fullscreen Mode</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+    }
+    button {
+      padding: 12px 24px;
+      font-size: 16px;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    button:hover {
+      background: #5a67d8;
+    }
+    .info {
+      background: #f0f0f0;
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 24px;
+    }
+    code {
+      background: #e0e0e0;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Test 2: Button ID with Fullscreen Mode</h1>
+
+  <div class="info">
+    <p><strong>Test Configuration:</strong></p>
+    <ul>
+      <li><code>data-trigger="manual"</code></li>
+      <li><code>data-button-id="test2"</code></li>
+      <li><code>data-display="fullscreen"</code></li>
+    </ul>
+    <p><strong>Expected Behavior:</strong> Clicking the button below should open the widget in fullscreen mode.</p>
+  </div>
+
+  <button id="test2">Test Fullscreen Mode</button>
+
+  <!-- MySellKit Widget - Replace XXX with your test product ID -->
+  <script src="widget.js"
+          data-product="XXX"
+          data-trigger="manual"
+          data-display="fullscreen"
+          data-button-id="test2"
+          data-debug="true"></script>
+</body>
+</html>

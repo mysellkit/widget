@@ -10,7 +10,7 @@
   const BUTTON_ID = SCRIPT_TAG.getAttribute('data-button-id');
   const API_BASE = 'https://mysellkit.com/version-test/api/1.1/wf';
   const CHECKOUT_BASE = 'https://mysellkit.com/version-test';
-  const WIDGET_VERSION = '1.2.0';
+  const WIDGET_VERSION = '1.2.2';
 
   let widgetConfig = null;
   let sessionId = null;
@@ -224,21 +224,21 @@
         font-style: normal;
         font-weight: 400;
         font-display: swap;
-        src: url('https://mysellkit.github.io/widget/dm-sans-v17-latin-regular.woff2') format('woff2');
+        src: url('https://mysellkit.github.io/widget/fonts/dm-sans-v17-latin-regular.woff2') format('woff2');
       }
       @font-face {
         font-family: 'DM Sans';
         font-style: normal;
         font-weight: 500;
         font-display: swap;
-        src: url('https://mysellkit.github.io/widget/dm-sans-v17-latin-500.woff2') format('woff2');
+        src: url('https://mysellkit.github.io/widget/fonts/dm-sans-v17-latin-500.woff2') format('woff2');
       }
       @font-face {
         font-family: 'DM Sans';
         font-style: normal;
         font-weight: 600;
         font-display: swap;
-        src: url('https://mysellkit.github.io/widget/dm-sans-v17-latin-600.woff2') format('woff2');
+        src: url('https://mysellkit.github.io/widget/fonts/dm-sans-v17-latin-600.woff2') format('woff2');
       }
 
       /* Reset */

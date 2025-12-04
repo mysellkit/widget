@@ -7,13 +7,9 @@
 
   const API_BASE = 'https://mysellkit.com/version-test/api/1.1/wf';
   const CHECKOUT_BASE = 'https://mysellkit.com/version-test';
-  const WIDGET_VERSION = '1.2.0';
+  const WIDGET_VERSION = '1.2.2';
 
   let sessionId = null;
-
-  // Get script tag and button IDs attribute
-  const SCRIPT_TAG = document.currentScript;
-  const BUTTON_IDS = SCRIPT_TAG ? SCRIPT_TAG.getAttribute('data-mysellkit-buttons') : null;
 
   // Check debug mode
   const urlParams = new URLSearchParams(window.location.search);
@@ -290,49 +286,6 @@
   }
 
   // ============================================
-  // ATTACH BUTTONS BY IDS
-  // ============================================
-
-  function attachButtonsByIds() {
-    if (!BUTTON_IDS) return;
-
-    const ids = BUTTON_IDS.split(',').map(id => id.trim());
-
-    if (DEBUG_MODE) {
-      console.log(`🔍 Looking for buttons with IDs: ${ids.join(', ')}`);
-    }
-
-    ids.forEach(buttonId => {
-      const button = document.getElementById(buttonId);
-
-      if (!button) {
-        console.warn(`MySellKit: Button #${buttonId} not found`);
-        return;
-      }
-
-      const productId = button.getAttribute('data-product-id');
-
-      if (!productId) {
-        console.warn(`MySellKit: Button #${buttonId} missing data-product-id`);
-        return;
-      }
-
-      // Add cursor pointer
-      button.style.cursor = 'pointer';
-
-      // Attach click handler
-      button.addEventListener('click', async (e) => {
-        e.preventDefault();
-        await performCheckout(productId);
-      });
-
-      if (DEBUG_MODE) {
-        console.log(`✅ Checkout attached to #${buttonId} for product ${productId}`);
-      }
-    });
-  }
-
-  // ============================================
   // INJECT MINIMAL CSS
   // ============================================
 
@@ -455,11 +408,8 @@
     // Inject minimal CSS
     injectMinimalCSS();
 
-    // Method 1: data-attribute (for platforms that support it)
+    // Attach checkout buttons
     attachCheckoutButtons();
-
-    // Method 2: ID-based (for Bubble and similar)
-    attachButtonsByIds();
 
     if (DEBUG_MODE) {
       console.log('✅ MySellKit Checkout initialized successfully');

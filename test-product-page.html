@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Product-Page.js - MySellKit Widget</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #fc466b 0%, #3f5efb 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 800px;
+      background: white;
+      border-radius: 24px;
+      padding: 48px;
+      box-shadow: 0 25px 70px rgba(0, 0, 0, 0.3);
+    }
+
+    h1 {
+      font-size: 32px;
+      font-weight: 700;
+      color: #1F2937;
+      margin-bottom: 16px;
+    }
+
+    p {
+      font-size: 16px;
+      line-height: 1.6;
+      color: #6B7280;
+      margin-bottom: 32px;
+    }
+
+    .test-section {
+      background: #F9FAFB;
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 24px;
+      border: 2px solid #E5E7EB;
+    }
+
+    .test-section h2 {
+      font-size: 20px;
+      font-weight: 600;
+      color: #1F2937;
+      margin-bottom: 12px;
+    }
+
+    .test-section p {
+      font-size: 14px;
+      color: #6B7280;
+      margin-bottom: 16px;
+    }
+
+    button {
+      background: #00D66F;
+      color: black;
+      font-weight: 600;
+      font-size: 15px;
+      padding: 14px 28px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    button:hover {
+      filter: brightness(0.95);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    .badge {
+      display: inline-block;
+      background: #fc466b;
+      color: white;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 6px;
+      margin-bottom: 16px;
+    }
+
+    .checklist {
+      background: white;
+      border-radius: 8px;
+      padding: 16px;
+      margin-top: 16px;
+    }
+
+    .checklist h3 {
+      font-size: 15px;
+      font-weight: 600;
+      color: #1F2937;
+      margin-bottom: 12px;
+    }
+
+    .checklist ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .checklist li {
+      font-size: 13px;
+      color: #6B7280;
+      padding: 8px 0;
+      border-bottom: 1px solid #E5E7EB;
+      display: flex;
+      align-items: center;
+    }
+
+    .checklist li:last-child {
+      border-bottom: none;
+    }
+
+    .checklist li::before {
+      content: "✓";
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      background: #00D66F;
+      color: black;
+      border-radius: 50%;
+      text-align: center;
+      line-height: 20px;
+      font-weight: bold;
+      font-size: 12px;
+      margin-right: 10px;
+    }
+
+    .note {
+      background: #FEF3C7;
+      border: 1px solid #FCD34D;
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-top: 24px;
+      font-size: 13px;
+      color: #92400E;
+      line-height: 1.5;
+    }
+
+    .note strong {
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <span class="badge">product-page.js v1.2.0</span>
+    <h1>Test product-page.js</h1>
+    <p>This page tests the product-page.js widget with fullscreen display mode.</p>
+
+    <!-- Test: Fullscreen product page -->
+    <div class="test-section">
+      <h2>Test: Fullscreen Product Page</h2>
+      <p>Click the button below to open a fullscreen immersive product showcase.</p>
+      <button id="view-product-btn">View Product (Fullscreen)</button>
+
+      <div class="checklist">
+        <h3>What to verify:</h3>
+        <ul>
+          <li>Button has cursor pointer (hover to check)</li>
+          <li>Popup opens in fullscreen (100vw x 100vh)</li>
+          <li>No floating widget appears</li>
+          <li>Image display is larger</li>
+          <li>40/60 column split for desktop</li>
+          <li>Right column scrolls smoothly</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="note">
+      <strong>Note:</strong> The product-page.js script requires both <code>data-product</code> and <code>data-button-id</code> attributes. Add <code>?debug=true</code> to see console logs.
+    </div>
+  </div>
+
+  <!-- FULLSCREEN PRODUCT PAGE -->
+  <script src="product-page.js"
+          data-product="679efebbe35c85e55b05b4be"
+          data-button-id="view-product-btn"
+          data-debug="true"></script>
+
+</body>
+</html>

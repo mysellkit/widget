@@ -7,9 +7,20 @@
 
   const SCRIPT_TAG = document.currentScript;
   const POPUP_ID = SCRIPT_TAG.getAttribute('data-popup');
-  const API_BASE = 'https://mysellkit.com/version-test/api/1.1/wf';
-  const CHECKOUT_BASE = 'https://mysellkit.com/version-test';
-  const WIDGET_VERSION = '1.2.7';
+
+  // Auto-detect environment (live vs version-test)
+  const IS_VERSION_TEST = window.location.hostname === 'mysellkit.com' &&
+                          window.location.pathname.startsWith('/version-test');
+
+  const API_BASE = IS_VERSION_TEST
+    ? 'https://mysellkit.com/version-test/api/1.1/wf'
+    : 'https://mysellkit.com/api/1.1/wf';
+
+  const CHECKOUT_BASE = IS_VERSION_TEST
+    ? 'https://mysellkit.com/version-test'
+    : 'https://mysellkit.com';
+
+  const WIDGET_VERSION = '1.2.8';
 
   // All configuration will now come from API response
   let config = null;
@@ -31,6 +42,9 @@
 
   if (DEBUG_MODE) {
     console.log(`🔧 MySellKit Popup DEBUG MODE ENABLED (v${WIDGET_VERSION})`);
+    console.log('🌍 Environment:', IS_VERSION_TEST ? 'VERSION-TEST' : 'LIVE');
+    console.log('📡 API Base:', API_BASE);
+    console.log('💳 Checkout Base:', CHECKOUT_BASE);
   }
 
   // ============================================

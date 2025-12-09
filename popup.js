@@ -9,7 +9,7 @@
   const POPUP_ID = SCRIPT_TAG.getAttribute('data-popup');
   const API_BASE = 'https://mysellkit.com/version-test/api/1.1/wf';
   const CHECKOUT_BASE = 'https://mysellkit.com/version-test';
-  const WIDGET_VERSION = '1.2.6';
+  const WIDGET_VERSION = '1.2.7';
 
   // All configuration will now come from API response
   let config = null;
@@ -1691,14 +1691,92 @@
     if (!config) return;
     if (config.trigger_type !== 'click') return;
 
-    // For manual triggers, button_id might be in the config (or could be added later)
-    // For now, we'll handle click triggers via custom implementation
     if (DEBUG_MODE) {
-      console.log('🎯 Manual trigger mode enabled');
+      console.log('🎯 Manual trigger mode enabled - looking for #mysellkit-trigger');
     }
 
-    // Note: Manual trigger functionality would be handled by custom button implementation
-    // in the user's page that calls showPopup() directly
+    // Wait for DOM to be ready
+    const attachToButton = () => {
+      const button = document.getElementById('mysellkit-trigger');
+
+      if (!button) {
+        console.warn('MySellKit: Manual trigger enabled but no element with id="mysellkit-trigger" found on page');
+        if (DEBUG_MODE) {
+          console.log('💡 Add id="mysellkit-trigger" to your button/link to enable manual trigger');
+        }
+        return;
+      }
+
+      button.addEventListener('click', function(e) {
+        e.preventDefault();
+
+        if (DEBUG_MODE) {
+          console.log('🎯 Manual trigger clicked');
+        }
+
+        if (hasPurchasedProduct()) {
+          if (DEBUG_MODE) {
+            console.log('❌ Product already purchased');
+          }
+          showToast('You already own this product!', 'error');
+          return;
+        }
+
+        showPopup();
+      });
+
+      if (DEBUG_MODE) {
+        console.log('✅ Manual trigger attached to #mysellkit-trigger');
+      }
+    };
+
+    // Try immediately if DOM ready, otherwise wait
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', attachToButton);
+    } else {
+      attachToButton();
+    }
+  }
+
+  // ============================================
+  // GLOBAL API FOR ADVANCED USERS
+  // ============================================
+
+  function exposeGlobalAPI() {
+    if (!window.MySellKit) {
+      window.MySellKit = {};
+    }
+
+    // Allow manual triggering via JavaScript
+    window.MySellKit.open = function(popupId) {
+      if (!config) {
+        console.error('MySellKit: Popup not initialized yet');
+        return;
+      }
+
+      if (popupId && popupId !== POPUP_ID) {
+        console.warn(`MySellKit: Popup ID mismatch. Expected ${POPUP_ID}, got ${popupId}`);
+        return;
+      }
+
+      if (hasPurchasedProduct()) {
+        if (DEBUG_MODE) {
+          console.log('❌ Product already purchased');
+        }
+        showToast('You already own this product!', 'error');
+        return;
+      }
+
+      if (DEBUG_MODE) {
+        console.log('🎯 MySellKit.open() called');
+      }
+
+      showPopup();
+    };
+
+    if (DEBUG_MODE) {
+      console.log('✅ MySellKit.open() API available globally');
+    }
   }
 
   // ============================================
@@ -1921,6 +1999,9 @@
     // Inject CSS with colors from config
     injectCSS(config);
     createPopup(config);
+
+    // Expose global API for manual triggering
+    exposeGlobalAPI();
 
     // Check if user already had impression this session
     if (shouldShowFloatingWidget()) {

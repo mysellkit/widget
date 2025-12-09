@@ -333,10 +333,15 @@
     const isDraft = config.is_live !== 'yes';
     const draftLabel = isDraft ? '<div style="font-size: 10px; margin-top: 4px; background: #f59e0b; color: white; padding: 2px 6px; border-radius: 3px; font-weight: 600;">🚧 DRAFT MODE</div>' : '';
 
+    // Check if Stripe connected
+    const stripeNotConnected = config.stripe_connected !== 'yes';
+    const stripeLabel = stripeNotConnected ? '<div style="font-size: 10px; margin-top: 4px; background: #ef4444; color: white; padding: 2px 6px; border-radius: 3px; font-weight: 600;">🔴 NO STRIPE</div>' : '';
+
     badge.innerHTML = `
       <div style="font-size: 10px; margin-bottom: 4px;">🔧 TEST MODE v${WIDGET_VERSION}</div>
       <div style="font-size: 10px;">Popup: ${config.popup_name || POPUP_ID}</div>
       ${draftLabel}
+      ${stripeLabel}
       <div style="font-size: 11px;">${statusIcon} ${statusText}</div>
       <div style="font-size: 10px; margin-top: 4px; opacity: 0.9;">${triggerInfo}</div>
     `;
@@ -1451,6 +1456,15 @@
       console.log('🛒 Starting checkout process');
     }
 
+    // Check if Stripe is connected FIRST
+    if (config && config.stripe_connected !== 'yes') {
+      if (DEBUG_MODE) {
+        console.log('🔴 Cannot checkout: Stripe not connected');
+      }
+      showToast('Payment processing not configured. Please contact the seller.', 'error');
+      return;
+    }
+
     // Check if product is in draft mode
     if (config && config.is_live !== 'yes') {
       if (DEBUG_MODE) {
@@ -1974,12 +1988,23 @@
 
     // Check if product is live
     if (config.is_live !== 'yes' && !DEBUG_MODE) {
-      console.log('🚧 Product is in DRAFT mode - popup will not load');
+      console.log('🚧 Popup is in DRAFT mode - popup will not load');
+      return; // Stop initialization in production
+    }
+
+    // Check if Stripe is connected
+    if (config.stripe_connected !== 'yes' && !DEBUG_MODE) {
+      console.log('🔴 Stripe not connected - popup will not load');
       return; // Stop initialization in production
     }
 
     if (config.is_live !== 'yes' && DEBUG_MODE) {
       console.log('🚧 DRAFT MODE: Product is not live. Checkout disabled. Popup will still display in debug mode.');
+    }
+
+    // Check Stripe in debug mode
+    if (config.stripe_connected !== 'yes' && DEBUG_MODE) {
+      console.log('🔴 STRIPE NOT CONNECTED: Checkout disabled. Popup will still display in debug mode.');
     }
 
     // Check for cancelled payment first

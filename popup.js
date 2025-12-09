@@ -241,14 +241,21 @@
         console.log('📦 Popup config received:', data);
       }
 
-      if (data.response && data.response.success === 'yes') {
+      // Check if API returned success (handle both response structures)
+      const isSuccess = (data.status === 'success' && data.response) ||
+                        (data.response && data.response.success === 'yes');
+
+      if (isSuccess && data.response) {
         // Fix image URL if needed
         if (data.response.image && data.response.image.startsWith('//')) {
           data.response.image = 'https:' + data.response.image;
         }
         return data.response;
       } else {
-        console.error('MySellKit: Invalid popup ID');
+        console.error('MySellKit: Invalid popup ID or API error');
+        if (DEBUG_MODE) {
+          console.log('API Response:', JSON.stringify(data, null, 2));
+        }
         return null;
       }
     } catch (error) {

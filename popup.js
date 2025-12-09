@@ -20,7 +20,7 @@
     ? 'https://mysellkit.com/version-test'
     : 'https://mysellkit.com';
 
-  const WIDGET_VERSION = '1.2.8';
+  const WIDGET_VERSION = '1.2.10';
 
   // All configuration will now come from API response
   let config = null;
@@ -1521,6 +1521,14 @@
     buttonElement.appendChild(spinner);
 
     try {
+      if (DEBUG_MODE) {
+        console.log('💳 Creating checkout session with data:', {
+          popup_id: POPUP_ID,
+          product_id: config.product_id,
+          debug_mode: 'yes'
+        });
+      }
+
       // Create Stripe Checkout Session
       const response = await fetch(`${API_BASE}/create-checkout-session`, {
         method: 'POST',
@@ -1532,6 +1540,7 @@
           product_id: config.product_id,
           session_id: getSessionId(),
           purchase_token: purchaseToken,
+          debug_mode: DEBUG_MODE ? 'yes' : 'no',  // NEW: Allow checkout in debug mode
           success_url: `${CHECKOUT_BASE}/payment-processing?token=${purchaseToken}`,
           cancel_url: window.location.href + (window.location.href.includes('?') ? '&' : '?') + 'mysellkit_cancelled=true'
         })

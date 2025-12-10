@@ -20,7 +20,7 @@
     ? 'https://mysellkit.com/version-test'
     : 'https://mysellkit.com';
 
-  const WIDGET_VERSION = '1.2.11';
+  const WIDGET_VERSION = '1.2.12';
 
   // All configuration will now come from API response
   let config = null;
@@ -288,14 +288,6 @@
 
       if (DEBUG_MODE) {
         console.log('📊 Tracking event:', eventType, additionalData);
-        console.log('📸 Config snapshot:', {
-          trigger_type: config.trigger_type,
-          trigger_value: config.trigger_value,
-          cta_text: config.cta_text,
-          price: config.price,
-          debug_mode: DEBUG_MODE ? 'yes' : 'no',
-          environment: IS_VERSION_TEST ? 'test' : 'live'
-        });
       }
 
       await fetch(`${API_BASE}/track-event`, {
@@ -308,27 +300,12 @@
           product_id: config.product_id,
           session_id: getSessionId(),
           event_type: eventType,
-          timestamp: Date.now(),
           page_url: window.location.href,
           user_agent: navigator.userAgent,
 
-          // Metadata
+          // Metadata only
           debug_mode: DEBUG_MODE ? 'yes' : 'no',
           environment: IS_VERSION_TEST ? 'test' : 'live',
-
-          // Config Snapshot - TIER 1 (Critical)
-          trigger_type: config.trigger_type,
-          trigger_value: config.trigger_value,
-          cta_text: config.cta_text,
-          price_at_time: config.price,
-          old_price_at_time: config.old_price || '',
-          show_price: config.show_price,
-
-          // Config Snapshot - TIER 2 (Important)
-          popup_title: config.title,
-          has_image: (config.image && config.image.trim() !== '') ? 'yes' : 'no',
-          persistent_mode: config.persistent_mode,
-          mobile_floating: config.mobile_floating,
 
           ...additionalData
         })

@@ -300,7 +300,6 @@
           product_id: config.product_id,
           session_id: getSessionId(),
           event_type: eventType,
-          timestamp: Date.now(),
           page_url: window.location.href,
           user_agent: navigator.userAgent,
 

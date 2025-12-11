@@ -20,7 +20,7 @@
     ? 'https://mysellkit.com/version-test'
     : 'https://mysellkit.com';
 
-  const WIDGET_VERSION = '1.2.12';
+  const WIDGET_VERSION = '1.2.13';
 
   // All configuration will now come from API response
   let config = null;
@@ -578,7 +578,8 @@
         border: none;
         border-radius: 50%;
         font-size: 20px;
-        line-height: 1;
+        line-height: 0;
+        padding: 0;
         cursor: pointer;
         display: flex;
         align-items: center;
@@ -798,6 +799,10 @@
         display: flex;
         flex-direction: column;
         gap: 48px;
+        /* Force scrollability even with Lenis/Locomotive */
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain;
       }
 
       /* Description */
@@ -930,10 +935,9 @@
       }
 
       .mysellkit-included-item:hover {
-        background: var(--msk-left-bg, #FFFFFF);
         transform: translateX(4px);
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-        border-color: var(--msk-primary-color, #00D66F)33;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+        border-color: rgba(0, 0, 0, 0.08);
       }
 
       .mysellkit-file-icon {
@@ -1140,6 +1144,10 @@
           overflow-y: auto;
           padding-bottom: 126px;
           background: var(--msk-right-bg, #F9FAFB);
+          /* Force scrollability even with Lenis/Locomotive */
+          overflow-y: auto !important;
+          -webkit-overflow-scrolling: touch;
+          overscroll-behavior: contain;
         }
 
         /* When price is hidden, reduce padding */
@@ -1275,6 +1283,22 @@
         .mysellkit-top {
           margin-bottom: 16px;
         }
+      }
+
+      /* Force scrollability on popup columns when Lenis/Locomotive is active */
+      body[data-mysellkit-popup-open] .mysellkit-right,
+      body[data-mysellkit-popup-open] .mysellkit-left {
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain;
+      }
+
+      /* Prevent Lenis/Locomotive from affecting popup scroll */
+      .mysellkit-overlay,
+      .mysellkit-popup,
+      .mysellkit-right,
+      .mysellkit-left {
+        overscroll-behavior: contain;
       }
     `;
   }
@@ -1576,7 +1600,8 @@
           console.log('🔗 Redirecting to Stripe:', data.response.checkout_url);
         }
 
-        window.location.href = data.response.checkout_url;
+        // Force same-tab navigation (prevent Arc/browser popup blockers)
+        window.location.replace(data.response.checkout_url);
       } else {
         // Handle error
         console.error('❌ Invalid checkout response structure:', data);
@@ -1622,6 +1647,31 @@
     const overlay = document.getElementById('mysellkit-popup-widget');
     if (!overlay) return;
 
+    // Prevent Lenis/Locomotive from blocking popup scroll
+    if (window.lenis) {
+      window.lenis.stop();
+      if (DEBUG_MODE) {
+        console.log('🔒 Lenis scroll stopped for popup');
+      }
+    }
+    if (window.locomotive) {
+      window.locomotive.stop();
+      if (DEBUG_MODE) {
+        console.log('🔒 Locomotive scroll stopped');
+      }
+    }
+
+    // Add data attribute to body for CSS targeting
+    document.body.setAttribute('data-mysellkit-popup-open', 'true');
+
+    // Force scroll reset on popup columns
+    setTimeout(() => {
+      const rightCol = overlay.querySelector('.mysellkit-right');
+      const leftCol = overlay.querySelector('.mysellkit-left');
+      if (rightCol) rightCol.scrollTop = 0;
+      if (leftCol) leftCol.scrollTop = 0;
+    }, 10);
+
     if (DEBUG_MODE) {
       console.log('🎉 Showing popup');
     }
@@ -1648,6 +1698,23 @@
     if (!overlay) return;
 
     overlay.classList.remove('visible');
+
+    // Re-enable Lenis/Locomotive
+    if (window.lenis) {
+      window.lenis.start();
+      if (DEBUG_MODE) {
+        console.log('✅ Lenis scroll restored');
+      }
+    }
+    if (window.locomotive) {
+      window.locomotive.start();
+      if (DEBUG_MODE) {
+        console.log('✅ Locomotive scroll restored');
+      }
+    }
+
+    // Remove data attribute
+    document.body.removeAttribute('data-mysellkit-popup-open');
   }
 
   function showFloatingWidget() {
@@ -2000,6 +2067,14 @@
   // ============================================
 
   async function init() {
+    // Prevent browser from opening links in new tabs
+    const meta = document.createElement('meta');
+    meta.name = 'referrer';
+    meta.content = 'no-referrer-when-downgrade';
+    if (!document.querySelector('meta[name="referrer"]')) {
+      document.head.appendChild(meta);
+    }
+
     if (DEBUG_MODE) {
       console.log(`🚀 MySellKit Popup v${WIDGET_VERSION} initializing...`);
     }

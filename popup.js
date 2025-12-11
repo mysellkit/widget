@@ -11,7 +11,15 @@
   const API_BASE = 'https://mysellkit.com/api/1.1/wf';
   const CHECKOUT_BASE = 'https://mysellkit.com';
 
-  const WIDGET_VERSION = '1.2.15';
+  const WIDGET_VERSION = '1.2.16';
+
+  /**
+   * NOTE: React hydration warnings (#418, #422) on Framer sites are expected.
+   * These are non-blocking warnings from Framer's React detecting custom HTML injection.
+   * They do not affect popup functionality. Attempts to use Shadow DOM or isolated
+   * containers break popup display entirely. Current approach (direct DOM injection)
+   * is the most reliable despite console warnings.
+   */
 
   // All configuration will now come from API response
   let config = null;
@@ -403,16 +411,7 @@
   // ============================================
 
   function injectCSS(config) {
-    // Skip global CSS injection if using Shadow DOM
-    const popupRoot = document.getElementById('mysellkit-root');
-    if (popupRoot && popupRoot.shadowRoot) {
-      if (DEBUG_MODE) {
-        console.log('✅ Using Shadow DOM - global CSS already injected');
-      }
-      return;
-    }
-
-    // Only inject global CSS once (for non-Shadow DOM fallback)
+    // Only inject global CSS once
     if (!document.getElementById('mysellkit-popup-global-styles')) {
       const globalStyle = document.createElement('style');
       globalStyle.id = 'mysellkit-popup-global-styles';
@@ -1439,33 +1438,11 @@
       </div>
     `;
 
-    // Create isolated container with Shadow DOM (prevents React hydration errors)
-    let popupRoot = document.getElementById('mysellkit-root');
-    if (!popupRoot) {
-      popupRoot = document.createElement('div');
-      popupRoot.id = 'mysellkit-root';
+    // Append directly to body (Shadow DOM broke display)
+    document.body.appendChild(overlay);
 
-      // Create Shadow DOM for complete isolation
-      const shadowRoot = popupRoot.attachShadow({ mode: 'open' });
-
-      // Inject styles into Shadow DOM
-      const styleElement = document.createElement('style');
-      styleElement.textContent = getGlobalCSS();
-      shadowRoot.appendChild(styleElement);
-
-      // Store shadow root reference
-      popupRoot._shadowRoot = shadowRoot;
-
-      document.body.appendChild(popupRoot);
-    }
-
-    // Append to shadow root instead of regular DOM
-    const shadowRoot = popupRoot._shadowRoot || popupRoot.shadowRoot;
-    if (shadowRoot) {
-      shadowRoot.appendChild(overlay);
-    } else {
-      // Fallback if shadow DOM not supported
-      popupRoot.appendChild(overlay);
+    if (DEBUG_MODE) {
+      console.log('✅ Popup HTML injected into DOM');
     }
 
     // Create floating widget
@@ -1505,17 +1482,11 @@
       </div>
     `;
 
-    // Append to shadow root
-    const popupRoot = document.getElementById('mysellkit-root');
-    if (popupRoot) {
-      const shadowRoot = popupRoot._shadowRoot || popupRoot.shadowRoot;
-      if (shadowRoot) {
-        shadowRoot.appendChild(floatingWidget);
-      } else {
-        popupRoot.appendChild(floatingWidget);
-      }
-    } else {
-      document.body.appendChild(floatingWidget);
+    // Append directly to body
+    document.body.appendChild(floatingWidget);
+
+    if (DEBUG_MODE) {
+      console.log('✅ Floating widget injected into DOM');
     }
 
     // Click on floating widget → Show popup
@@ -1725,7 +1696,17 @@
 
   function showPopup() {
     const overlay = document.getElementById('mysellkit-popup-widget');
-    if (!overlay) return;
+
+    if (!overlay) {
+      console.error('❌ CRITICAL: Popup overlay not found in DOM!');
+      return;
+    }
+
+    if (DEBUG_MODE) {
+      console.log('🎉 showPopup() called - making popup visible');
+      console.log('📍 Overlay element:', overlay);
+      console.log('📍 Current classes:', overlay.className);
+    }
 
     // NUCLEAR OPTION: Completely disable page scroll and Lenis/Locomotive
     if (window.lenis) {

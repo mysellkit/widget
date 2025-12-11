@@ -8,19 +8,10 @@
   const SCRIPT_TAG = document.currentScript;
   const POPUP_ID = SCRIPT_TAG.getAttribute('data-popup');
 
-  // Auto-detect environment (live vs version-test)
-  const IS_VERSION_TEST = window.location.hostname === 'mysellkit.com' &&
-                          window.location.pathname.startsWith('/version-test');
+  const API_BASE = 'https://mysellkit.com/api/1.1/wf';
+  const CHECKOUT_BASE = 'https://mysellkit.com';
 
-  const API_BASE = IS_VERSION_TEST
-    ? 'https://mysellkit.com/version-test/api/1.1/wf'
-    : 'https://mysellkit.com/api/1.1/wf';
-
-  const CHECKOUT_BASE = IS_VERSION_TEST
-    ? 'https://mysellkit.com/version-test'
-    : 'https://mysellkit.com';
-
-  const WIDGET_VERSION = '1.2.13';
+  const WIDGET_VERSION = '1.2.14';
 
   // All configuration will now come from API response
   let config = null;
@@ -42,7 +33,6 @@
 
   if (DEBUG_MODE) {
     console.log(`🔧 MySellKit Popup DEBUG MODE ENABLED (v${WIDGET_VERSION})`);
-    console.log('🌍 Environment:', IS_VERSION_TEST ? 'VERSION-TEST' : 'LIVE');
     console.log('📡 API Base:', API_BASE);
     console.log('💳 Checkout Base:', CHECKOUT_BASE);
   }
@@ -305,7 +295,6 @@
 
           // Metadata only
           debug_mode: DEBUG_MODE ? 'yes' : 'no',
-          environment: IS_VERSION_TEST ? 'test' : 'live',
 
           ...additionalData
         })
@@ -437,6 +426,17 @@
 
   function getGlobalCSS() {
     return `
+      /* Isolated root container - prevent React hydration */
+      #mysellkit-root {
+        position: relative;
+        z-index: 999998;
+        pointer-events: none;
+      }
+
+      #mysellkit-root > * {
+        pointer-events: auto;
+      }
+
       /* DM Sans Font */
       @font-face {
         font-family: 'DM Sans';
@@ -577,9 +577,10 @@
         background: rgba(0, 0, 0, 0.06);
         border: none;
         border-radius: 50%;
-        font-size: 20px;
+        font-size: 18px;
         line-height: 0;
         padding: 0;
+        margin: 0;
         cursor: pointer;
         display: flex;
         align-items: center;
@@ -587,6 +588,8 @@
         transition: all 0.2s ease;
         z-index: 100;
         color: #4B5563;
+        font-family: system-ui, -apple-system, sans-serif;
+        font-weight: 300;
       }
 
       .mysellkit-close:hover {
@@ -795,14 +798,14 @@
         height: 600px;
         background: var(--msk-right-bg, #F9FAFB);
         padding: 24px;
-        overflow-y: auto;
+        overflow-y: auto !important;
         display: flex;
         flex-direction: column;
         gap: 48px;
         /* Force scrollability even with Lenis/Locomotive */
-        overflow-y: auto !important;
-        -webkit-overflow-scrolling: touch;
-        overscroll-behavior: contain;
+        -webkit-overflow-scrolling: touch !important;
+        overscroll-behavior: contain !important;
+        position: relative;
       }
 
       /* Description */
@@ -1141,13 +1144,13 @@
           height: 100%;
           padding: 20px 20px 0 20px;
           display: block;
-          overflow-y: auto;
+          overflow-y: auto !important;
           padding-bottom: 126px;
           background: var(--msk-right-bg, #F9FAFB);
           /* Force scrollability even with Lenis/Locomotive */
-          overflow-y: auto !important;
-          -webkit-overflow-scrolling: touch;
-          overscroll-behavior: contain;
+          -webkit-overflow-scrolling: touch !important;
+          overscroll-behavior: contain !important;
+          position: relative;
         }
 
         /* When price is hidden, reduce padding */
@@ -1289,8 +1292,8 @@
       body[data-mysellkit-popup-open] .mysellkit-right,
       body[data-mysellkit-popup-open] .mysellkit-left {
         overflow-y: auto !important;
-        -webkit-overflow-scrolling: touch;
-        overscroll-behavior: contain;
+        -webkit-overflow-scrolling: touch !important;
+        overscroll-behavior: contain !important;
       }
 
       /* Prevent Lenis/Locomotive from affecting popup scroll */
@@ -1298,7 +1301,16 @@
       .mysellkit-popup,
       .mysellkit-right,
       .mysellkit-left {
-        overscroll-behavior: contain;
+        overscroll-behavior: contain !important;
+      }
+
+      /* Ensure scrollability even on mobile-sized desktop viewports */
+      @media (max-width: 768px) {
+        .mysellkit-left {
+          overflow-y: auto !important;
+          -webkit-overflow-scrolling: touch !important;
+          touch-action: pan-y !important;
+        }
       }
     `;
   }
@@ -1397,7 +1409,16 @@
       </div>
     `;
 
-    document.body.appendChild(overlay);
+    // Create isolated container for popup (outside React scope)
+    let popupRoot = document.getElementById('mysellkit-root');
+    if (!popupRoot) {
+      popupRoot = document.createElement('div');
+      popupRoot.id = 'mysellkit-root';
+      popupRoot.setAttribute('data-react-root', 'false');
+      popupRoot.setAttribute('data-framer-hydrate', 'never');
+      document.body.appendChild(popupRoot);
+    }
+    popupRoot.appendChild(overlay);
 
     // Create floating widget
     createFloatingWidget(config, floatPriceHTML, hasImage);
@@ -1436,7 +1457,13 @@
       </div>
     `;
 
-    document.body.appendChild(floatingWidget);
+    // Append to isolated root
+    const popupRoot = document.getElementById('mysellkit-root');
+    if (popupRoot) {
+      popupRoot.appendChild(floatingWidget);
+    } else {
+      document.body.appendChild(floatingWidget);
+    }
 
     // Click on floating widget → Show popup
     floatingWidget.addEventListener('click', () => {
@@ -1664,12 +1691,22 @@
     // Add data attribute to body for CSS targeting
     document.body.setAttribute('data-mysellkit-popup-open', 'true');
 
-    // Force scroll reset on popup columns
+    // Force scroll reset and enable scrolling
     setTimeout(() => {
       const rightCol = overlay.querySelector('.mysellkit-right');
       const leftCol = overlay.querySelector('.mysellkit-left');
-      if (rightCol) rightCol.scrollTop = 0;
-      if (leftCol) leftCol.scrollTop = 0;
+
+      if (rightCol) {
+        rightCol.scrollTop = 0;
+        rightCol.style.overflow = 'auto';
+        rightCol.style.overflowY = 'auto';
+      }
+
+      if (leftCol) {
+        leftCol.scrollTop = 0;
+        leftCol.style.overflow = 'auto';
+        leftCol.style.overflowY = 'auto';
+      }
     }, 10);
 
     if (DEBUG_MODE) {

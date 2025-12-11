@@ -11,7 +11,7 @@
   const API_BASE = 'https://mysellkit.com/api/1.1/wf';
   const CHECKOUT_BASE = 'https://mysellkit.com';
 
-  const WIDGET_VERSION = '1.2.19';
+  const WIDGET_VERSION = '1.2.20';
 
   /**
    * NOTE: React hydration warnings (#418, #422) on Framer sites are expected.
@@ -1155,7 +1155,7 @@
           padding: 20px 20px 0 20px;
           display: block;
           overflow-y: auto !important;
-          padding-bottom: 140px; /* Increased from 110px - gives ~30px more clearance */
+          padding-bottom: 184px; /* Increased from 110px - gives ~30px more clearance */
           background: var(--msk-right-bg, #F9FAFB);
           -webkit-overflow-scrolling: touch !important;
           overscroll-behavior: contain !important;
@@ -1164,7 +1164,7 @@
 
         /* When price is hidden, bottom section is smaller */
         .mysellkit-left.no-price-mobile {
-          padding-bottom: 110px; /* Increased from 90px */
+          padding-bottom: 154px; /* Increased from 90px */
         }
 
         .mysellkit-right {

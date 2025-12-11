@@ -11,7 +11,7 @@
   const API_BASE = 'https://mysellkit.com/api/1.1/wf';
   const CHECKOUT_BASE = 'https://mysellkit.com';
 
-  const WIDGET_VERSION = '1.2.16';
+  const WIDGET_VERSION = '1.2.17';
 
   /**
    * NOTE: React hydration warnings (#418, #422) on Framer sites are expected.
@@ -434,19 +434,6 @@
 
   function getGlobalCSS() {
     return `
-      /* Safari mobile viewport fix */
-      @media (max-width: 768px) {
-        .mysellkit-popup {
-          height: calc(var(--vh, 1vh) * 100);
-          max-height: calc(var(--vh, 1vh) * 100);
-        }
-
-        .mysellkit-left {
-          height: calc(var(--vh, 1vh) * 100);
-          max-height: calc(var(--vh, 1vh) * 100);
-        }
-      }
-
       /* Isolated root container - prevent React hydration */
       #mysellkit-root {
         position: relative;
@@ -1311,7 +1298,7 @@
         }
       }
 
-      /* NUCLEAR: Force scrollability on popup when body is locked */
+      /* NUCLEAR: Force scrollability on popup columns while body is locked */
       body[data-mysellkit-popup-open] {
         overflow: hidden !important;
         height: 100vh !important;
@@ -1321,10 +1308,12 @@
 
       .mysellkit-overlay {
         overflow: hidden !important;
+        pointer-events: auto !important;
       }
 
       .mysellkit-popup {
         overflow: hidden !important;
+        pointer-events: auto !important;
       }
 
       .mysellkit-right,
@@ -1333,13 +1322,21 @@
         -webkit-overflow-scrolling: touch !important;
         overscroll-behavior: contain !important;
         touch-action: pan-y !important;
+        pointer-events: auto !important;
+        will-change: scroll-position;
       }
 
-      /* Force scroll on desktop */
-      @media (min-width: 769px) {
-        .mysellkit-right {
-          overflow-y: scroll !important;
-        }
+      /* Ensure scrollbars are visible and functional */
+      .mysellkit-right::-webkit-scrollbar,
+      .mysellkit-left::-webkit-scrollbar {
+        width: 8px;
+        display: block !important;
+      }
+
+      .mysellkit-right::-webkit-scrollbar-thumb,
+      .mysellkit-left::-webkit-scrollbar-thumb {
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 4px;
       }
     `;
   }
@@ -1737,21 +1734,44 @@
 
       if (rightCol) {
         rightCol.scrollTop = 0;
-        rightCol.style.overflow = 'auto';
-        rightCol.style.overflowY = 'auto';
-        rightCol.style.webkitOverflowScrolling = 'touch';
+        // Force scrolling to work
+        rightCol.style.setProperty('overflow-y', 'scroll', 'important');
+        rightCol.style.setProperty('-webkit-overflow-scrolling', 'touch', 'important');
+        rightCol.style.setProperty('overscroll-behavior', 'contain', 'important');
 
-        // Force immediate focus for scroll
-        rightCol.focus();
+        // Try to enable pointer events and scrolling
+        rightCol.addEventListener('wheel', function(e) {
+          e.stopPropagation();
+        }, { passive: false });
+
+        rightCol.addEventListener('touchmove', function(e) {
+          e.stopPropagation();
+        }, { passive: false });
+
+        if (DEBUG_MODE) {
+          console.log('✅ Right column scroll enabled');
+        }
       }
 
       if (leftCol) {
         leftCol.scrollTop = 0;
-        leftCol.style.overflow = 'auto';
-        leftCol.style.overflowY = 'auto';
-        leftCol.style.webkitOverflowScrolling = 'touch';
+        leftCol.style.setProperty('overflow-y', 'scroll', 'important');
+        leftCol.style.setProperty('-webkit-overflow-scrolling', 'touch', 'important');
+        leftCol.style.setProperty('overscroll-behavior', 'contain', 'important');
+
+        leftCol.addEventListener('wheel', function(e) {
+          e.stopPropagation();
+        }, { passive: false });
+
+        leftCol.addEventListener('touchmove', function(e) {
+          e.stopPropagation();
+        }, { passive: false });
+
+        if (DEBUG_MODE) {
+          console.log('✅ Left column scroll enabled');
+        }
       }
-    }, 50);
+    }, 100);
 
     if (DEBUG_MODE) {
       console.log('🎉 Showing popup');
@@ -2150,17 +2170,6 @@
   }
 
   // ============================================
-  // FIX SAFARI MOBILE VIEWPORT HEIGHT
-  // ============================================
-
-  function fixSafariHeight() {
-    if (window.innerWidth <= 768) {
-      const vh = window.innerHeight * 0.01;
-      document.documentElement.style.setProperty('--vh', `${vh}px`);
-    }
-  }
-
-  // ============================================
   // INIT
   // ============================================
 
@@ -2185,10 +2194,6 @@
     if (DEBUG_MODE) {
       console.log('📦 Popup ID:', POPUP_ID);
     }
-
-    // Fix Safari viewport height
-    fixSafariHeight();
-    window.addEventListener('resize', fixSafariHeight);
 
     // Fetch config first
     config = await fetchPopupConfig();

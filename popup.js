@@ -11,7 +11,7 @@
   const API_BASE = 'https://mysellkit.com/api/1.1/wf';
   const CHECKOUT_BASE = 'https://mysellkit.com';
 
-  const WIDGET_VERSION = '1.2.14';
+  const WIDGET_VERSION = '1.2.15';
 
   // All configuration will now come from API response
   let config = null;
@@ -403,7 +403,16 @@
   // ============================================
 
   function injectCSS(config) {
-    // Only inject global CSS once
+    // Skip global CSS injection if using Shadow DOM
+    const popupRoot = document.getElementById('mysellkit-root');
+    if (popupRoot && popupRoot.shadowRoot) {
+      if (DEBUG_MODE) {
+        console.log('✅ Using Shadow DOM - global CSS already injected');
+      }
+      return;
+    }
+
+    // Only inject global CSS once (for non-Shadow DOM fallback)
     if (!document.getElementById('mysellkit-popup-global-styles')) {
       const globalStyle = document.createElement('style');
       globalStyle.id = 'mysellkit-popup-global-styles';
@@ -426,6 +435,19 @@
 
   function getGlobalCSS() {
     return `
+      /* Safari mobile viewport fix */
+      @media (max-width: 768px) {
+        .mysellkit-popup {
+          height: calc(var(--vh, 1vh) * 100);
+          max-height: calc(var(--vh, 1vh) * 100);
+        }
+
+        .mysellkit-left {
+          height: calc(var(--vh, 1vh) * 100);
+          max-height: calc(var(--vh, 1vh) * 100);
+        }
+      }
+
       /* Isolated root container - prevent React hydration */
       #mysellkit-root {
         position: relative;
@@ -1125,8 +1147,10 @@
         .mysellkit-popup {
           width: 100%;
           max-width: 100%;
-          height: 100vh;
-          max-height: 100vh;
+          height: 100dvh; /* Use dvh (dynamic viewport height) for Safari */
+          height: -webkit-fill-available; /* Fallback for older Safari */
+          max-height: 100dvh;
+          max-height: -webkit-fill-available;
           border-radius: 0;
           flex-direction: column;
           animation: mysellkit-slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
@@ -1141,13 +1165,13 @@
 
         .mysellkit-left {
           width: 100%;
-          height: 100%;
+          height: 100dvh; /* Use dvh (dynamic viewport height) for Safari */
+          height: -webkit-fill-available; /* Fallback for older Safari */
           padding: 20px 20px 0 20px;
           display: block;
           overflow-y: auto !important;
           padding-bottom: 126px;
           background: var(--msk-right-bg, #F9FAFB);
-          /* Force scrollability even with Lenis/Locomotive */
           -webkit-overflow-scrolling: touch !important;
           overscroll-behavior: contain !important;
           position: relative;
@@ -1288,28 +1312,34 @@
         }
       }
 
-      /* Force scrollability on popup columns when Lenis/Locomotive is active */
-      body[data-mysellkit-popup-open] .mysellkit-right,
-      body[data-mysellkit-popup-open] .mysellkit-left {
-        overflow-y: auto !important;
-        -webkit-overflow-scrolling: touch !important;
-        overscroll-behavior: contain !important;
+      /* NUCLEAR: Force scrollability on popup when body is locked */
+      body[data-mysellkit-popup-open] {
+        overflow: hidden !important;
+        height: 100vh !important;
+        position: fixed !important;
+        width: 100% !important;
       }
 
-      /* Prevent Lenis/Locomotive from affecting popup scroll */
-      .mysellkit-overlay,
-      .mysellkit-popup,
+      .mysellkit-overlay {
+        overflow: hidden !important;
+      }
+
+      .mysellkit-popup {
+        overflow: hidden !important;
+      }
+
       .mysellkit-right,
       .mysellkit-left {
+        overflow-y: scroll !important;
+        -webkit-overflow-scrolling: touch !important;
         overscroll-behavior: contain !important;
+        touch-action: pan-y !important;
       }
 
-      /* Ensure scrollability even on mobile-sized desktop viewports */
-      @media (max-width: 768px) {
-        .mysellkit-left {
-          overflow-y: auto !important;
-          -webkit-overflow-scrolling: touch !important;
-          touch-action: pan-y !important;
+      /* Force scroll on desktop */
+      @media (min-width: 769px) {
+        .mysellkit-right {
+          overflow-y: scroll !important;
         }
       }
     `;
@@ -1409,16 +1439,34 @@
       </div>
     `;
 
-    // Create isolated container for popup (outside React scope)
+    // Create isolated container with Shadow DOM (prevents React hydration errors)
     let popupRoot = document.getElementById('mysellkit-root');
     if (!popupRoot) {
       popupRoot = document.createElement('div');
       popupRoot.id = 'mysellkit-root';
-      popupRoot.setAttribute('data-react-root', 'false');
-      popupRoot.setAttribute('data-framer-hydrate', 'never');
+
+      // Create Shadow DOM for complete isolation
+      const shadowRoot = popupRoot.attachShadow({ mode: 'open' });
+
+      // Inject styles into Shadow DOM
+      const styleElement = document.createElement('style');
+      styleElement.textContent = getGlobalCSS();
+      shadowRoot.appendChild(styleElement);
+
+      // Store shadow root reference
+      popupRoot._shadowRoot = shadowRoot;
+
       document.body.appendChild(popupRoot);
     }
-    popupRoot.appendChild(overlay);
+
+    // Append to shadow root instead of regular DOM
+    const shadowRoot = popupRoot._shadowRoot || popupRoot.shadowRoot;
+    if (shadowRoot) {
+      shadowRoot.appendChild(overlay);
+    } else {
+      // Fallback if shadow DOM not supported
+      popupRoot.appendChild(overlay);
+    }
 
     // Create floating widget
     createFloatingWidget(config, floatPriceHTML, hasImage);
@@ -1457,10 +1505,15 @@
       </div>
     `;
 
-    // Append to isolated root
+    // Append to shadow root
     const popupRoot = document.getElementById('mysellkit-root');
     if (popupRoot) {
-      popupRoot.appendChild(floatingWidget);
+      const shadowRoot = popupRoot._shadowRoot || popupRoot.shadowRoot;
+      if (shadowRoot) {
+        shadowRoot.appendChild(floatingWidget);
+      } else {
+        popupRoot.appendChild(floatingWidget);
+      }
     } else {
       document.body.appendChild(floatingWidget);
     }
@@ -1674,24 +1727,29 @@
     const overlay = document.getElementById('mysellkit-popup-widget');
     if (!overlay) return;
 
-    // Prevent Lenis/Locomotive from blocking popup scroll
+    // NUCLEAR OPTION: Completely disable page scroll and Lenis/Locomotive
     if (window.lenis) {
       window.lenis.stop();
-      if (DEBUG_MODE) {
-        console.log('🔒 Lenis scroll stopped for popup');
-      }
+      if (DEBUG_MODE) console.log('🔒 Lenis stopped');
     }
     if (window.locomotive) {
       window.locomotive.stop();
-      if (DEBUG_MODE) {
-        console.log('🔒 Locomotive scroll stopped');
-      }
+      if (DEBUG_MODE) console.log('🔒 Locomotive stopped');
     }
 
-    // Add data attribute to body for CSS targeting
+    // Prevent body scroll entirely
+    document.body.style.overflow = 'hidden';
+    document.body.style.height = '100vh';
+    document.body.style.position = 'fixed';
+    document.body.style.width = '100%';
     document.body.setAttribute('data-mysellkit-popup-open', 'true');
 
-    // Force scroll reset and enable scrolling
+    // Store original scroll position to restore later
+    const scrollY = window.scrollY;
+    document.body.style.top = `-${scrollY}px`;
+    window.mysellkitScrollY = scrollY;
+
+    // Force scroll reset and enable scrolling on popup columns
     setTimeout(() => {
       const rightCol = overlay.querySelector('.mysellkit-right');
       const leftCol = overlay.querySelector('.mysellkit-left');
@@ -1700,14 +1758,19 @@
         rightCol.scrollTop = 0;
         rightCol.style.overflow = 'auto';
         rightCol.style.overflowY = 'auto';
+        rightCol.style.webkitOverflowScrolling = 'touch';
+
+        // Force immediate focus for scroll
+        rightCol.focus();
       }
 
       if (leftCol) {
         leftCol.scrollTop = 0;
         leftCol.style.overflow = 'auto';
         leftCol.style.overflowY = 'auto';
+        leftCol.style.webkitOverflowScrolling = 'touch';
       }
-    }, 10);
+    }, 50);
 
     if (DEBUG_MODE) {
       console.log('🎉 Showing popup');
@@ -1736,22 +1799,28 @@
 
     overlay.classList.remove('visible');
 
-    // Re-enable Lenis/Locomotive
+    // Restore Lenis/Locomotive
     if (window.lenis) {
       window.lenis.start();
-      if (DEBUG_MODE) {
-        console.log('✅ Lenis scroll restored');
-      }
+      if (DEBUG_MODE) console.log('✅ Lenis restored');
     }
     if (window.locomotive) {
       window.locomotive.start();
-      if (DEBUG_MODE) {
-        console.log('✅ Locomotive scroll restored');
-      }
+      if (DEBUG_MODE) console.log('✅ Locomotive restored');
     }
 
-    // Remove data attribute
+    // Restore body scroll
+    document.body.style.overflow = '';
+    document.body.style.height = '';
+    document.body.style.position = '';
+    document.body.style.width = '';
+    document.body.style.top = '';
     document.body.removeAttribute('data-mysellkit-popup-open');
+
+    // Restore scroll position
+    const scrollY = window.mysellkitScrollY || 0;
+    window.scrollTo(0, scrollY);
+    delete window.mysellkitScrollY;
   }
 
   function showFloatingWidget() {
@@ -2100,6 +2169,17 @@
   }
 
   // ============================================
+  // FIX SAFARI MOBILE VIEWPORT HEIGHT
+  // ============================================
+
+  function fixSafariHeight() {
+    if (window.innerWidth <= 768) {
+      const vh = window.innerHeight * 0.01;
+      document.documentElement.style.setProperty('--vh', `${vh}px`);
+    }
+  }
+
+  // ============================================
   // INIT
   // ============================================
 
@@ -2124,6 +2204,10 @@
     if (DEBUG_MODE) {
       console.log('📦 Popup ID:', POPUP_ID);
     }
+
+    // Fix Safari viewport height
+    fixSafariHeight();
+    window.addEventListener('resize', fixSafariHeight);
 
     // Fetch config first
     config = await fetchPopupConfig();

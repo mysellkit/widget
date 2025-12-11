@@ -11,7 +11,7 @@
   const API_BASE = 'https://mysellkit.com/api/1.1/wf';
   const CHECKOUT_BASE = 'https://mysellkit.com';
 
-  const WIDGET_VERSION = '1.2.17';
+  const WIDGET_VERSION = '1.2.18';
 
   /**
    * NOTE: React hydration warnings (#418, #422) on Framer sites are expected.
@@ -1151,21 +1151,20 @@
 
         .mysellkit-left {
           width: 100%;
-          height: 100dvh; /* Use dvh (dynamic viewport height) for Safari */
-          height: -webkit-fill-available; /* Fallback for older Safari */
+          height: 100%;
           padding: 20px 20px 0 20px;
           display: block;
           overflow-y: auto !important;
-          padding-bottom: 126px;
+          padding-bottom: 110px; /* Reduced from 126px */
           background: var(--msk-right-bg, #F9FAFB);
           -webkit-overflow-scrolling: touch !important;
           overscroll-behavior: contain !important;
           position: relative;
         }
 
-        /* When price is hidden, reduce padding */
+        /* When price is hidden, reduce padding even more */
         .mysellkit-left.no-price-mobile {
-          padding-bottom: 82px;
+          padding-bottom: 90px; /* Reduced from 82px */
         }
 
         .mysellkit-right {
@@ -1208,9 +1207,9 @@
         .mysellkit-mobile-content {
           display: flex;
           flex-direction: column;
-          gap: 48px;
-          margin-bottom: 24px;
-          padding-bottom: 24px;
+          gap: 32px;
+          margin-bottom: 0;
+          padding-bottom: 0;
         }
 
         .mysellkit-bottom-section {
@@ -1222,8 +1221,10 @@
           padding: 16px 20px 20px;
           box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.08);
           border-top: 1px solid rgba(0, 0, 0, 0.06);
-          z-index: 50;
+          z-index: 999999;
           gap: 16px;
+          display: flex;
+          flex-direction: column;
         }
 
         .mysellkit-cta-section {
@@ -1440,6 +1441,29 @@
 
     if (DEBUG_MODE) {
       console.log('✅ Popup HTML injected into DOM');
+
+      // Debug mobile layout
+      if (window.innerWidth <= 768) {
+        setTimeout(() => {
+          const bottomSection = overlay.querySelector('.mysellkit-bottom-section');
+          const priceContainer = overlay.querySelector('.mysellkit-price-container');
+          const ctaButton = overlay.querySelector('.mysellkit-cta');
+
+          console.log('📱 Mobile Layout Debug:');
+          console.log('  Bottom section:', bottomSection ? 'FOUND' : '❌ MISSING');
+          console.log('  Price container:', priceContainer ? 'FOUND' : '❌ MISSING');
+          console.log('  CTA button:', ctaButton ? 'FOUND' : '❌ MISSING');
+
+          if (bottomSection) {
+            console.log('  Bottom section styles:', {
+              display: window.getComputedStyle(bottomSection).display,
+              position: window.getComputedStyle(bottomSection).position,
+              zIndex: window.getComputedStyle(bottomSection).zIndex,
+              bottom: window.getComputedStyle(bottomSection).bottom
+            });
+          }
+        }, 500);
+      }
     }
 
     // Create floating widget
@@ -1715,17 +1739,21 @@
       if (DEBUG_MODE) console.log('🔒 Locomotive stopped');
     }
 
-    // Prevent body scroll entirely
+    // Prevent body scroll entirely and preserve scroll position
+    const scrollY = window.scrollY;
     document.body.style.overflow = 'hidden';
     document.body.style.height = '100vh';
     document.body.style.position = 'fixed';
     document.body.style.width = '100%';
+    document.body.style.top = `-${scrollY}px`; // Apply BEFORE setting fixed position
     document.body.setAttribute('data-mysellkit-popup-open', 'true');
 
-    // Store original scroll position to restore later
-    const scrollY = window.scrollY;
-    document.body.style.top = `-${scrollY}px`;
+    // Store scroll position for restoration
     window.mysellkitScrollY = scrollY;
+
+    if (DEBUG_MODE) {
+      console.log(`📍 Scroll position preserved: ${scrollY}px`);
+    }
 
     // Force scroll reset and enable scrolling on popup columns
     setTimeout(() => {
@@ -1811,6 +1839,8 @@
     }
 
     // Restore body scroll
+    const scrollY = window.mysellkitScrollY || 0;
+
     document.body.style.overflow = '';
     document.body.style.height = '';
     document.body.style.position = '';
@@ -1819,9 +1849,12 @@
     document.body.removeAttribute('data-mysellkit-popup-open');
 
     // Restore scroll position
-    const scrollY = window.mysellkitScrollY || 0;
     window.scrollTo(0, scrollY);
     delete window.mysellkitScrollY;
+
+    if (DEBUG_MODE) {
+      console.log(`📍 Scroll position restored: ${scrollY}px`);
+    }
   }
 
   function showFloatingWidget() {

@@ -11,7 +11,7 @@
   const API_BASE = 'https://mysellkit.com/api/1.1/wf';
   const CHECKOUT_BASE = 'https://mysellkit.com';
 
-  const WIDGET_VERSION = '1.2.21';
+  const WIDGET_VERSION = '1.3.0';
 
   /**
    * NOTE: React hydration warnings (#418, #422) on Framer sites are expected.

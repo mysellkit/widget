@@ -11,7 +11,7 @@
   const API_BASE = 'https://mysellkit.com/api/1.1/wf';
   const CHECKOUT_BASE = 'https://mysellkit.com';
 
-  const WIDGET_VERSION = '1.2.20';
+  const WIDGET_VERSION = '1.2.21';
 
   /**
    * NOTE: React hydration warnings (#418, #422) on Framer sites are expected.
@@ -284,8 +284,10 @@
     try {
       if (!config) return;
 
+      // Skip tracking in debug mode to avoid polluting analytics
       if (DEBUG_MODE) {
-        console.log('📊 Tracking event:', eventType, additionalData);
+        console.log('🚫 DEBUG MODE: Skipping event tracking:', eventType, additionalData);
+        return;
       }
 
       await fetch(`${API_BASE}/track-event`, {
@@ -307,10 +309,6 @@
           ...additionalData
         })
       });
-
-      if (DEBUG_MODE) {
-        console.log('✅ Event tracked:', eventType);
-      }
     } catch (error) {
       console.error('MySellKit: Failed to track event', error);
     }
@@ -585,19 +583,20 @@
         background: rgba(0, 0, 0, 0.06);
         border: none;
         border-radius: 50%;
-        font-size: 18px;
-        line-height: 0;
-        padding: 0;
-        margin: 0;
+        font-size: 20px;
+        line-height: 1 !important;
+        padding: 0 !important;
+        margin: 0 !important;
         cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
         transition: all 0.2s ease;
         z-index: 100;
         color: #4B5563;
-        font-family: system-ui, -apple-system, sans-serif;
-        font-weight: 300;
+        font-family: system-ui, -apple-system, sans-serif !important;
+        font-weight: 300 !important;
+        text-align: center !important;
       }
 
       .mysellkit-close:hover {
@@ -650,11 +649,11 @@
 
       .mysellkit-title {
         width: 100%;
-        font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-        font-weight: 600;
-        font-size: 24px;
-        line-height: 1.3;
-        color: var(--msk-text-color, #1F2937);
+        font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
+        font-weight: 600 !important;
+        font-size: 24px !important;
+        line-height: 1.3 !important;
+        color: var(--msk-text-color, #1F2937) !important;
         display: -webkit-box;
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
@@ -682,19 +681,19 @@
       }
 
       .mysellkit-price-current {
-        font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-        font-weight: 500;
-        font-size: 28px;
-        color: var(--msk-text-color, #1F2937);
-        letter-spacing: -0.02em;
+        font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
+        font-weight: 500 !important;
+        font-size: 28px !important;
+        color: var(--msk-text-color, #1F2937) !important;
+        letter-spacing: -0.02em !important;
       }
 
       .mysellkit-price-old {
-        font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-        font-weight: 400;
-        font-size: 22px;
-        color: var(--msk-text-color-light, #9CA3AF);
-        text-decoration: line-through;
+        font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
+        font-weight: 400 !important;
+        font-size: 22px !important;
+        color: var(--msk-text-color-light, #9CA3AF) !important;
+        text-decoration: line-through !important;
         opacity: 0.8;
       }
 
@@ -749,11 +748,11 @@
       }
 
       .mysellkit-cta-text {
-        font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-        font-weight: 600;
-        font-size: 15px;
-        color: var(--msk-cta-text-color, #000000);
-        letter-spacing: -0.01em;
+        font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
+        font-weight: 600 !important;
+        font-size: 15px !important;
+        color: var(--msk-cta-text-color, #000000) !important;
+        letter-spacing: -0.01em !important;
       }
 
       .mysellkit-cta-arrow {
@@ -782,11 +781,11 @@
       }
 
       .mysellkit-powered {
-        font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-        font-size: 12px;
-        color: var(--msk-text-color-light, #9CA3AF);
-        text-align: center;
-        font-weight: 400;
+        font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
+        font-size: 12px !important;
+        color: var(--msk-text-color-light, #9CA3AF) !important;
+        text-align: center !important;
+        font-weight: 400 !important;
       }
 
       .mysellkit-powered a {
@@ -818,12 +817,12 @@
 
       /* Description */
       .mysellkit-description {
-        font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-        font-weight: 400;
-        font-size: 15px;
-        line-height: 1.65;
-        color: var(--msk-text-color, #1F2937);
-        letter-spacing: 0.01em;
+        font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
+        font-weight: 400 !important;
+        font-size: 15px !important;
+        line-height: 1.65 !important;
+        color: var(--msk-text-color, #1F2937) !important;
+        letter-spacing: 0.01em !important;
       }
 
       .mysellkit-description p {
@@ -920,10 +919,10 @@
       }
 
       .mysellkit-included-title {
-        font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-        font-weight: 600;
-        font-size: 18px;
-        color: var(--msk-text-color, #1F2937);
+        font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
+        font-weight: 600 !important;
+        font-size: 18px !important;
+        color: var(--msk-text-color, #1F2937) !important;
         margin-bottom: 4px;
       }
 
@@ -969,11 +968,11 @@
       }
 
       .mysellkit-file-name {
-        font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-        font-weight: 500;
-        font-size: 14px;
-        line-height: 1.5;
-        color: var(--msk-text-color, #1F2937);
+        font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
+        font-weight: 500 !important;
+        font-size: 14px !important;
+        line-height: 1.5 !important;
+        color: var(--msk-text-color, #1F2937) !important;
         flex: 1;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -1339,6 +1338,11 @@
         background: rgba(0, 0, 0, 0.3);
         border-radius: 4px;
       }
+
+      /* Force pointer cursor on manual trigger button */
+      #mysellkit-trigger {
+        cursor: pointer !important;
+      }
     `;
   }
 
@@ -1662,18 +1666,17 @@
 
         if (DEBUG_MODE) {
           console.log('✅ Checkout URL received, redirecting...');
-        }
-
-        // Close popup before redirect
-        hidePopup();
-
-        // Redirect to Stripe Checkout
-        if (DEBUG_MODE) {
           console.log('🔗 Redirecting to Stripe:', data.response.checkout_url);
         }
 
-        // Force same-tab navigation (prevent Arc/browser popup blockers)
-        window.location.replace(data.response.checkout_url);
+        // Close popup JUST BEFORE redirect to avoid visual gap
+        hidePopup();
+
+        // Small delay to ensure popup close animation starts before navigation
+        setTimeout(() => {
+          // Force same-tab navigation (prevent Arc/browser popup blockers)
+          window.location.replace(data.response.checkout_url);
+        }, 150); // 150ms delay - smooth transition without visible page gap
       } else {
         // Handle error
         console.error('❌ Invalid checkout response structure:', data);
@@ -1969,6 +1972,7 @@
           console.log('🎯 Manual trigger clicked');
         }
 
+        // Check if product purchased
         if (hasPurchasedProduct()) {
           if (DEBUG_MODE) {
             console.log('❌ Product already purchased');
@@ -1977,6 +1981,10 @@
           return;
         }
 
+        // Hide floating widget if visible (avoid overlap)
+        hideFloatingWidget();
+
+        // Always allow click trigger to show popup (unlimited)
         showPopup();
       });
 
@@ -2026,6 +2034,10 @@
         console.log('🎯 MySellKit.open() called');
       }
 
+      // Hide floating widget if visible
+      hideFloatingWidget();
+
+      // Always allow manual trigger to show popup
       showPopup();
     };
 

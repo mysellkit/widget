@@ -11,7 +11,7 @@
   const CONFIG = {
     API_BASE: 'https://mysellkit.com/api/1.1/wf',
     CHECKOUT_BASE: 'https://mysellkit.com',
-    VERSION: '1.3.9',
+    VERSION: '1.3.10',
     SESSION_DURATION: 86400000, // 24h in ms
     TOAST_DURATION: 5000
   };
@@ -647,20 +647,21 @@
       }
       .mysellkit-image:hover { transform: scale(1.02); }
 
-      .mysellkit-title {
-        width: 100%;
+      .mysellkit-popup .mysellkit-left .mysellkit-title,
+      h2.mysellkit-title {
+        width: 100% !important;
         font-family: 'DM Sans', 'Apple Color Emoji', 'Segoe UI Emoji', -apple-system, BlinkMacSystemFont, sans-serif !important;
         font-weight: 600 !important;
         font-size: 24px !important;
         line-height: 1.3 !important;
         letter-spacing: -0.5px !important;
         color: var(--msk-text-color, #1F2937) !important;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        max-height: 62px;
+        display: -webkit-box !important;
+        -webkit-line-clamp: 2 !important;
+        -webkit-box-orient: vertical !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        max-height: 62px !important;
       }
 
       .mysellkit-bottom-section {
@@ -800,7 +801,7 @@
         font-family: 'DM Sans', 'Apple Color Emoji', 'Segoe UI Emoji', -apple-system, BlinkMacSystemFont, sans-serif !important;
         font-weight: 500 !important;
         font-size: 15px !important;
-        line-height: 1.65 !important;
+        line-height: 1.75 !important;
         letter-spacing: 0.01em !important;
         color: var(--msk-text-color, #1F2937) !important;
       }
@@ -808,22 +809,30 @@
       .mysellkit-description p {
         font-family: 'DM Sans', 'Apple Color Emoji', 'Segoe UI Emoji', -apple-system, BlinkMacSystemFont, sans-serif !important;
         font-size: 15px !important;
-        line-height: 1.65 !important;
+        line-height: 1.75 !important;
         font-weight: 500 !important;
-        margin-bottom: 16px !important;
+        margin-bottom: 20px !important;
       }
       .mysellkit-description p:last-child { margin-bottom: 0 !important; }
 
-      .mysellkit-description h3,
-      .mysellkit-included-title {
+      .mysellkit-description h3 {
         font-family: 'DM Sans', 'Apple Color Emoji', 'Segoe UI Emoji', -apple-system, BlinkMacSystemFont, sans-serif !important;
         font-size: 16px !important;
         font-weight: 600 !important;
         line-height: 1.3 !important;
         color: var(--msk-text-color, #1F2937) !important;
       }
+      .mysellkit-popup .mysellkit-included .mysellkit-included-title,
+      h3.mysellkit-included-title {
+        font-family: 'DM Sans', 'Apple Color Emoji', 'Segoe UI Emoji', -apple-system, BlinkMacSystemFont, sans-serif !important;
+        font-weight: 600 !important;
+        font-size: 16px !important;
+        line-height: 1.3 !important;
+        color: var(--msk-text-color, #1F2937) !important;
+        margin-bottom: 4px !important;
+      }
       .mysellkit-description h3 {
-        margin-bottom: 12px !important;
+        margin-bottom: 16px !important;
         margin-top: 8px !important;
       }
       .mysellkit-description h3:first-child {
@@ -842,14 +851,14 @@
       .mysellkit-description ul {
         list-style: none !important;
         padding: 0 !important;
-        margin: 0 0 16px 0 !important;
+        margin: 0 0 20px 0 !important;
       }
       .mysellkit-description ul li {
         font-family: 'DM Sans', 'Apple Color Emoji', 'Segoe UI Emoji', -apple-system, BlinkMacSystemFont, sans-serif !important;
         font-size: 15px !important;
         line-height: 1.65 !important;
         margin-left: 0 !important;
-        margin-bottom: 8px !important;
+        margin-bottom: 10px !important;
         padding-left: 1em !important;
         position: relative;
         color: var(--msk-text-color, #1F2937) !important;
@@ -866,7 +875,7 @@
       .mysellkit-description ol {
         list-style: none !important;
         padding: 0 !important;
-        margin: 0 0 16px 0 !important;
+        margin: 0 0 20px 0 !important;
         counter-reset: item;
       }
       .mysellkit-description ol li {
@@ -875,7 +884,7 @@
         line-height: 1.65 !important;
         counter-increment: item;
         margin-left: 0 !important;
-        margin-bottom: 8px !important;
+        margin-bottom: 10px !important;
         padding-left: 1.5em !important;
         position: relative;
         color: var(--msk-text-color, #1F2937) !important;
@@ -901,10 +910,6 @@
         display: flex;
         flex-direction: column;
         gap: 14px;
-      }
-
-      .mysellkit-included-title {
-        margin-bottom: 4px !important;
       }
 
       .mysellkit-included-items {

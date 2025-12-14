@@ -11,7 +11,7 @@
   const CONFIG = {
     API_BASE: 'https://mysellkit.com/api/1.1/wf',
     CHECKOUT_BASE: 'https://mysellkit.com',
-    VERSION: '1.3.0',
+    VERSION: '1.3.4',
     SESSION_DURATION: 86400000, // 24h in ms
     TOAST_DURATION: 5000
   };
@@ -475,9 +475,10 @@
         padding: 16px 20px;
         border-radius: var(--msk-radius-md);
         box-shadow: var(--msk-shadow-md), var(--msk-shadow-sm);
-        font-family: var(--msk-font-family) !important;
+        font-family: 'DM Sans', 'Apple Color Emoji', 'Segoe UI Emoji', -apple-system, BlinkMacSystemFont, sans-serif !important;
         font-size: 14px !important;
         font-weight: 500 !important;
+        line-height: 1.5 !important;
         color: #1F2937 !important;
         z-index: 10000000;
         opacity: 0;
@@ -603,10 +604,11 @@
 
       .mysellkit-title {
         width: 100%;
-        font-family: var(--msk-font-family) !important;
+        font-family: 'DM Sans', 'Apple Color Emoji', 'Segoe UI Emoji', -apple-system, BlinkMacSystemFont, sans-serif !important;
         font-weight: 600 !important;
         font-size: 24px !important;
         line-height: 1.3 !important;
+        letter-spacing: -0.5px !important;
         color: var(--msk-text-color, #1F2937) !important;
         display: -webkit-box;
         -webkit-line-clamp: 2;
@@ -630,17 +632,20 @@
       .mysellkit-price-container.no-price { display: none; }
 
       .mysellkit-price-current {
-        font-family: var(--msk-font-family) !important;
+        font-family: 'DM Sans', 'Apple Color Emoji', 'Segoe UI Emoji', -apple-system, BlinkMacSystemFont, sans-serif !important;
         font-weight: 500 !important;
         font-size: 28px !important;
+        line-height: 1.3 !important;
+        letter-spacing: -1px !important;
         color: var(--msk-text-color, #1F2937) !important;
-        letter-spacing: -0.02em !important;
       }
 
       .mysellkit-price-old {
-        font-family: var(--msk-font-family) !important;
+        font-family: 'DM Sans', 'Apple Color Emoji', 'Segoe UI Emoji', -apple-system, BlinkMacSystemFont, sans-serif !important;
         font-weight: 400 !important;
         font-size: 22px !important;
+        line-height: 1.3 !important;
+        letter-spacing: -1px !important;
         color: var(--msk-text-color-light, #9CA3AF) !important;
         text-decoration: line-through !important;
         opacity: 0.8;
@@ -690,16 +695,16 @@
       }
 
       .mysellkit-cta-text {
-        font-family: var(--msk-font-family) !important;
+        font-family: 'DM Sans', 'Apple Color Emoji', 'Segoe UI Emoji', -apple-system, BlinkMacSystemFont, sans-serif !important;
         font-weight: 600 !important;
         font-size: 15px !important;
+        line-height: 1.2 !important;
         color: var(--msk-cta-text-color, #000000) !important;
-        letter-spacing: -0.01em !important;
       }
 
       .mysellkit-cta-arrow {
-        font-size: 16px;
-        color: var(--msk-cta-text-color, #000000);
+        font-size: 16px !important;
+        color: var(--msk-cta-text-color, #000000) !important;
         transition: transform 0.2s ease;
       }
       .mysellkit-cta:hover:not(:disabled) .mysellkit-cta-arrow { transform: translateX(3px); }
@@ -716,16 +721,18 @@
       @keyframes mysellkit-spin { to { transform: rotate(360deg); } }
 
       .mysellkit-powered {
-        font-family: var(--msk-font-family) !important;
+        font-family: 'DM Sans', 'Apple Color Emoji', 'Segoe UI Emoji', -apple-system, BlinkMacSystemFont, sans-serif !important;
         font-size: 12px !important;
+        font-weight: 400 !important;
         color: var(--msk-text-color-light, #9CA3AF) !important;
         text-align: center !important;
-        font-weight: 400 !important;
       }
+
       .mysellkit-powered a {
         color: var(--msk-text-color-light, #9CA3AF);
         text-decoration: none;
-        font-weight: 600;
+        font-weight: 600 !important;
+        font-size: 12px !important;
         transition: color 0.2s ease;
       }
       .mysellkit-powered a:hover { color: var(--msk-primary-color, #00D66F); }
@@ -745,29 +752,43 @@
       }
 
       .mysellkit-description {
-        font-family: var(--msk-font-family) !important;
-        font-weight: 400 !important;
+        font-family: 'DM Sans', 'Apple Color Emoji', 'Segoe UI Emoji', -apple-system, BlinkMacSystemFont, sans-serif !important;
+        font-weight: 500 !important;
         font-size: 15px !important;
         line-height: 1.65 !important;
-        color: var(--msk-text-color, #1F2937) !important;
         letter-spacing: 0.01em !important;
-      }
-      .mysellkit-description p { margin-bottom: 16px; }
-      .mysellkit-description p:last-child { margin-bottom: 0; }
-      .mysellkit-description h3 {
-        font-family: var(--msk-font-family) !important;
-        font-size: 18px !important;
-        font-weight: 600 !important;
         color: var(--msk-text-color, #1F2937) !important;
+      }
+
+      .mysellkit-description p {
+        font-family: 'DM Sans', 'Apple Color Emoji', 'Segoe UI Emoji', -apple-system, BlinkMacSystemFont, sans-serif !important;
+        font-size: 15px !important;
+        line-height: 1.65 !important;
+        font-weight: 500 !important;
+        margin-bottom: 16px;
+      }
+      .mysellkit-description p:last-child { margin-bottom: 0; }
+
+      .mysellkit-description h3,
+      .mysellkit-included-title {
+        font-family: 'DM Sans', 'Apple Color Emoji', 'Segoe UI Emoji', -apple-system, BlinkMacSystemFont, sans-serif !important;
+        font-size: 16px !important;
+        font-weight: 600 !important;
+        line-height: 1.3 !important;
+        color: var(--msk-text-color, #1F2937) !important;
+      }
+      .mysellkit-description h3 {
         margin-bottom: 12px;
         margin-top: 8px;
       }
       .mysellkit-description strong {
-        color: var(--msk-text-color, #1F2937) !important;
+        font-family: 'DM Sans', 'Apple Color Emoji', 'Segoe UI Emoji', -apple-system, BlinkMacSystemFont, sans-serif !important;
         font-weight: 600 !important;
+        color: var(--msk-text-color, #1F2937) !important;
       }
       .mysellkit-description em {
-        font-style: italic;
+        font-family: 'DM Sans', 'Apple Color Emoji', 'Segoe UI Emoji', -apple-system, BlinkMacSystemFont, sans-serif !important;
+        font-style: italic !important;
         color: var(--msk-text-color, #1F2937) !important;
       }
       .mysellkit-description ul, .mysellkit-description ol {
@@ -777,6 +798,7 @@
       }
       .mysellkit-description ul li::before {
         content: "•";
+        font-family: 'DM Sans', 'Apple Color Emoji', 'Segoe UI Emoji', -apple-system, BlinkMacSystemFont, sans-serif !important;
         color: var(--msk-text-color, #1F2937) !important;
         font-weight: bold !important;
         display: inline-block;
@@ -784,7 +806,9 @@
         margin-left: -1em;
       }
       .mysellkit-description ul li {
-        font-family: var(--msk-font-family) !important;
+        font-family: 'DM Sans', 'Apple Color Emoji', 'Segoe UI Emoji', -apple-system, BlinkMacSystemFont, sans-serif !important;
+        font-size: 15px !important;
+        line-height: 1.65 !important;
         margin-left: 1em;
         margin-bottom: 8px;
         color: var(--msk-text-color, #1F2937) !important;
@@ -792,7 +816,9 @@
       .mysellkit-description ul li p { display: inline; margin: 0; }
       .mysellkit-description ol { counter-reset: item; }
       .mysellkit-description ol li {
-        font-family: var(--msk-font-family) !important;
+        font-family: 'DM Sans', 'Apple Color Emoji', 'Segoe UI Emoji', -apple-system, BlinkMacSystemFont, sans-serif !important;
+        font-size: 15px !important;
+        line-height: 1.65 !important;
         counter-increment: item;
         margin-bottom: 8px;
         margin-left: 1.5em;
@@ -800,6 +826,7 @@
       }
       .mysellkit-description ol li::before {
         content: counter(item) ".";
+        font-family: 'DM Sans', 'Apple Color Emoji', 'Segoe UI Emoji', -apple-system, BlinkMacSystemFont, sans-serif !important;
         color: var(--msk-text-color, #1F2937) !important;
         font-weight: 600 !important;
         display: inline-block;
@@ -822,10 +849,6 @@
       }
 
       .mysellkit-included-title {
-        font-family: var(--msk-font-family) !important;
-        font-weight: 600 !important;
-        font-size: 18px !important;
-        color: var(--msk-text-color, #1F2937) !important;
         margin-bottom: 4px;
       }
 
@@ -860,14 +883,14 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 18px;
+        font-size: 18px !important;
         flex-shrink: 0;
         transition: transform 0.2s ease;
       }
       .mysellkit-included-item:hover .mysellkit-file-icon { transform: scale(1.1); }
 
       .mysellkit-file-name {
-        font-family: var(--msk-font-family) !important;
+        font-family: 'DM Sans', 'Apple Color Emoji', 'Segoe UI Emoji', -apple-system, BlinkMacSystemFont, sans-serif !important;
         font-weight: 500 !important;
         font-size: 14px !important;
         line-height: 1.5 !important;
@@ -924,15 +947,15 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 32px;
+        font-size: 32px !important;
         flex-shrink: 0;
         box-shadow: var(--msk-shadow-sm);
         object-fit: cover;
       }
       .mysellkit-float-image.no-image {
         background: var(--msk-primary-color, #00D66F);
-        color: white;
-        font-weight: bold;
+        color: white !important;
+        font-weight: bold !important;
       }
 
       .mysellkit-float-info {
@@ -941,10 +964,10 @@
       }
 
       .mysellkit-float-title {
-        font-family: var(--msk-font-family) !important;
+        font-family: 'DM Sans', 'Apple Color Emoji', 'Segoe UI Emoji', -apple-system, BlinkMacSystemFont, sans-serif !important;
         font-weight: 600 !important;
         font-size: 14px !important;
-        line-height: 1.4;
+        line-height: 1.4 !important;
         color: var(--msk-text-color, #1F2937) !important;
         margin-bottom: 6px;
         display: -webkit-box;
@@ -956,9 +979,10 @@
       }
 
       .mysellkit-float-price {
-        font-family: var(--msk-font-family) !important;
+        font-family: 'DM Sans', 'Apple Color Emoji', 'Segoe UI Emoji', -apple-system, BlinkMacSystemFont, sans-serif !important;
         font-weight: 500 !important;
         font-size: 18px !important;
+        line-height: 1.3 !important;
         color: var(--msk-text-color, #1F2937) !important;
         display: flex;
         align-items: baseline;
@@ -966,9 +990,11 @@
       }
 
       .mysellkit-float-price-old {
+        font-family: 'DM Sans', 'Apple Color Emoji', 'Segoe UI Emoji', -apple-system, BlinkMacSystemFont, sans-serif !important;
         font-size: 14px !important;
+        line-height: 1.3 !important;
         color: var(--msk-text-color-light, #9CA3AF) !important;
-        text-decoration: line-through;
+        text-decoration: line-through !important;
         font-weight: 400 !important;
       }
 
@@ -980,12 +1006,12 @@
         color: white !important;
         padding: 10px 14px;
         border-radius: 8px;
+        font-family: 'DM Sans', 'Apple Color Emoji', 'Segoe UI Emoji', -apple-system, BlinkMacSystemFont, sans-serif !important;
         font-size: 11px !important;
         font-weight: 600 !important;
+        line-height: 1.4 !important;
         z-index: 9999999;
-        font-family: var(--msk-font-family) !important;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        line-height: 1.4;
       }
 
       @media (max-width: 768px) {

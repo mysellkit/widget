@@ -11,7 +11,7 @@
   const CONFIG = {
     API_BASE: 'https://mysellkit.com/api/1.1/wf',
     CHECKOUT_BASE: 'https://mysellkit.com',
-    VERSION: '1.3.6',
+    VERSION: '1.3.7',
     SESSION_DURATION: 86400000, // 24h in ms
     TOAST_DURATION: 5000
   };
@@ -462,53 +462,38 @@
       }
 
       /* ========================================== */
-      /* AGGRESSIVE RESET - Prevent browser/theme defaults */
+      /* TARGETED RESET - Only reset HTML tag defaults, preserve our classes */
       /* ========================================== */
 
+      /* Reset default heading styles */
       .mysellkit-popup h1,
       .mysellkit-popup h2,
       .mysellkit-popup h3,
       .mysellkit-popup h4,
       .mysellkit-popup h5,
-      .mysellkit-popup h6,
-      .mysellkit-popup p,
-      .mysellkit-popup ul,
-      .mysellkit-popup ol,
-      .mysellkit-popup li,
-      .mysellkit-popup strong,
-      .mysellkit-popup em,
-      .mysellkit-popup a,
-      .mysellkit-popup span,
-      .mysellkit-popup div,
-      .mysellkit-floating-widget h1,
-      .mysellkit-floating-widget h2,
-      .mysellkit-floating-widget h3,
-      .mysellkit-floating-widget p,
-      .mysellkit-floating-widget span,
-      .mysellkit-floating-widget div {
+      .mysellkit-popup h6 {
+        font-weight: normal !important;
         margin: 0 !important;
         padding: 0 !important;
-        border: 0 !important;
-        font: inherit !important;
-        font-weight: inherit !important;
-        font-size: inherit !important;
-        line-height: inherit !important;
-        color: inherit !important;
-        background: transparent !important;
-        text-align: inherit !important;
-        vertical-align: baseline !important;
       }
 
-      /* Reset list styles */
+      /* Reset default paragraph styles */
+      .mysellkit-popup p {
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+
+      /* Reset default list styles */
       .mysellkit-popup ul,
       .mysellkit-popup ol {
+        margin: 0 !important;
+        padding: 0 !important;
         list-style: none !important;
       }
 
-      /* Reset links */
-      .mysellkit-popup a {
-        text-decoration: inherit !important;
-        color: inherit !important;
+      .mysellkit-popup li {
+        margin: 0 !important;
+        padding: 0 !important;
       }
 
       /* Force smooth font rendering (like Bubble) */

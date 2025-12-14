@@ -11,7 +11,7 @@
   const CONFIG = {
     API_BASE: 'https://mysellkit.com/api/1.1/wf',
     CHECKOUT_BASE: 'https://mysellkit.com',
-    VERSION: '1.3.5',
+    VERSION: '1.3.6',
     SESSION_DURATION: 86400000, // 24h in ms
     TOAST_DURATION: 5000
   };
@@ -459,6 +459,66 @@
         font-weight: 600;
         font-display: swap;
         src: url('https://mysellkit.github.io/widget/fonts/dm-sans-v17-latin-600.woff2') format('woff2');
+      }
+
+      /* ========================================== */
+      /* AGGRESSIVE RESET - Prevent browser/theme defaults */
+      /* ========================================== */
+
+      .mysellkit-popup h1,
+      .mysellkit-popup h2,
+      .mysellkit-popup h3,
+      .mysellkit-popup h4,
+      .mysellkit-popup h5,
+      .mysellkit-popup h6,
+      .mysellkit-popup p,
+      .mysellkit-popup ul,
+      .mysellkit-popup ol,
+      .mysellkit-popup li,
+      .mysellkit-popup strong,
+      .mysellkit-popup em,
+      .mysellkit-popup a,
+      .mysellkit-popup span,
+      .mysellkit-popup div,
+      .mysellkit-floating-widget h1,
+      .mysellkit-floating-widget h2,
+      .mysellkit-floating-widget h3,
+      .mysellkit-floating-widget p,
+      .mysellkit-floating-widget span,
+      .mysellkit-floating-widget div {
+        margin: 0 !important;
+        padding: 0 !important;
+        border: 0 !important;
+        font: inherit !important;
+        font-weight: inherit !important;
+        font-size: inherit !important;
+        line-height: inherit !important;
+        color: inherit !important;
+        background: transparent !important;
+        text-align: inherit !important;
+        vertical-align: baseline !important;
+      }
+
+      /* Reset list styles */
+      .mysellkit-popup ul,
+      .mysellkit-popup ol {
+        list-style: none !important;
+      }
+
+      /* Reset links */
+      .mysellkit-popup a {
+        text-decoration: inherit !important;
+        color: inherit !important;
+      }
+
+      /* Force smooth font rendering (like Bubble) */
+      .mysellkit-popup,
+      .mysellkit-popup *,
+      .mysellkit-floating-widget,
+      .mysellkit-floating-widget * {
+        -webkit-font-smoothing: antialiased !important;
+        -moz-osx-font-smoothing: grayscale !important;
+        text-rendering: optimizeLegibility !important;
       }
 
       .mysellkit-popup *, .mysellkit-floating-widget *, .mysellkit-toast * {

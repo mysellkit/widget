@@ -11,7 +11,7 @@
   const CONFIG = {
     API_BASE: 'https://mysellkit.com/api/1.1/wf',
     CHECKOUT_BASE: 'https://mysellkit.com',
-    VERSION: '1.3.8',
+    VERSION: '1.3.9',
     SESSION_DURATION: 86400000, // 24h in ms
     TOAST_DURATION: 5000
   };
@@ -472,7 +472,7 @@
       .mysellkit-popup h4,
       .mysellkit-popup h5,
       .mysellkit-popup h6 {
-        font-weight: normal !important;
+        font-weight: inherit !important;
         margin: 0 !important;
         padding: 0 !important;
       }
@@ -839,47 +839,54 @@
         font-style: italic !important;
         color: var(--msk-text-color, #1F2937) !important;
       }
-      .mysellkit-description ul, .mysellkit-description ol {
-        list-style: none;
-        padding: 0;
-        margin-bottom: 16px;
-      }
-      .mysellkit-description ul li::before {
-        content: "•";
-        font-family: 'DM Sans', 'Apple Color Emoji', 'Segoe UI Emoji', -apple-system, BlinkMacSystemFont, sans-serif !important;
-        color: var(--msk-text-color, #1F2937) !important;
-        font-weight: bold !important;
-        display: inline-block;
-        width: 1em;
-        margin-left: -1em;
+      .mysellkit-description ul {
+        list-style: none !important;
+        padding: 0 !important;
+        margin: 0 0 16px 0 !important;
       }
       .mysellkit-description ul li {
         font-family: 'DM Sans', 'Apple Color Emoji', 'Segoe UI Emoji', -apple-system, BlinkMacSystemFont, sans-serif !important;
         font-size: 15px !important;
         line-height: 1.65 !important;
-        margin-left: 1em;
-        margin-bottom: 8px;
+        margin-left: 0 !important;
+        margin-bottom: 8px !important;
+        padding-left: 1em !important;
+        position: relative;
         color: var(--msk-text-color, #1F2937) !important;
       }
+      .mysellkit-description ul li::before {
+        content: "•" !important;
+        font-family: 'DM Sans', 'Apple Color Emoji', 'Segoe UI Emoji', -apple-system, BlinkMacSystemFont, sans-serif !important;
+        color: var(--msk-text-color, #1F2937) !important;
+        font-weight: bold !important;
+        position: absolute;
+        left: 0 !important;
+      }
       .mysellkit-description ul li p { display: inline; margin: 0; }
-      .mysellkit-description ol { counter-reset: item; }
+      .mysellkit-description ol {
+        list-style: none !important;
+        padding: 0 !important;
+        margin: 0 0 16px 0 !important;
+        counter-reset: item;
+      }
       .mysellkit-description ol li {
         font-family: 'DM Sans', 'Apple Color Emoji', 'Segoe UI Emoji', -apple-system, BlinkMacSystemFont, sans-serif !important;
         font-size: 15px !important;
         line-height: 1.65 !important;
         counter-increment: item;
-        margin-bottom: 8px;
-        margin-left: 1.5em;
+        margin-left: 0 !important;
+        margin-bottom: 8px !important;
+        padding-left: 1.5em !important;
+        position: relative;
         color: var(--msk-text-color, #1F2937) !important;
       }
       .mysellkit-description ol li::before {
-        content: counter(item) ".";
+        content: counter(item) "." !important;
         font-family: 'DM Sans', 'Apple Color Emoji', 'Segoe UI Emoji', -apple-system, BlinkMacSystemFont, sans-serif !important;
         color: var(--msk-text-color, #1F2937) !important;
         font-weight: 600 !important;
-        display: inline-block;
-        width: 1.5em;
-        margin-left: -1.5em;
+        position: absolute;
+        left: 0 !important;
       }
       .mysellkit-description ol li p { display: inline; margin: 0; }
 

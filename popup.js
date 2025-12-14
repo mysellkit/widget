@@ -11,7 +11,7 @@
   const CONFIG = {
     API_BASE: 'https://mysellkit.com/api/1.1/wf',
     CHECKOUT_BASE: 'https://mysellkit.com',
-    VERSION: '1.3.1',
+    VERSION: '1.3.0',
     SESSION_DURATION: 86400000, // 24h in ms
     TOAST_DURATION: 5000
   };
@@ -422,7 +422,7 @@
   function getGlobalCSS() {
     return `
       :root {
-        --msk-font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+        --msk-font-family: 'DM Sans', 'Apple Color Emoji', 'Segoe UI Emoji', -apple-system, BlinkMacSystemFont, sans-serif;
         --msk-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
         --msk-shadow-md: 0 8px 24px rgba(0, 0, 0, 0.12);
         --msk-shadow-lg: 0 25px 70px rgba(0, 0, 0, 0.35);
@@ -475,10 +475,10 @@
         padding: 16px 20px;
         border-radius: var(--msk-radius-md);
         box-shadow: var(--msk-shadow-md), var(--msk-shadow-sm);
-        font-family: var(--msk-font-family);
-        font-size: 14px;
-        font-weight: 500;
-        color: #1F2937;
+        font-family: var(--msk-font-family) !important;
+        font-size: 14px !important;
+        font-weight: 500 !important;
+        color: #1F2937 !important;
         z-index: 10000000;
         opacity: 0;
         transform: translateY(-20px);
@@ -755,19 +755,20 @@
       .mysellkit-description p { margin-bottom: 16px; }
       .mysellkit-description p:last-child { margin-bottom: 0; }
       .mysellkit-description h3 {
-        font-size: 18px;
-        font-weight: 600;
-        color: var(--msk-text-color, #1F2937);
+        font-family: var(--msk-font-family) !important;
+        font-size: 18px !important;
+        font-weight: 600 !important;
+        color: var(--msk-text-color, #1F2937) !important;
         margin-bottom: 12px;
         margin-top: 8px;
       }
       .mysellkit-description strong {
-        color: var(--msk-text-color, #1F2937);
-        font-weight: 600;
+        color: var(--msk-text-color, #1F2937) !important;
+        font-weight: 600 !important;
       }
       .mysellkit-description em {
         font-style: italic;
-        color: var(--msk-text-color, #1F2937);
+        color: var(--msk-text-color, #1F2937) !important;
       }
       .mysellkit-description ul, .mysellkit-description ol {
         list-style: none;
@@ -776,29 +777,31 @@
       }
       .mysellkit-description ul li::before {
         content: "•";
-        color: var(--msk-text-color, #1F2937);
-        font-weight: bold;
+        color: var(--msk-text-color, #1F2937) !important;
+        font-weight: bold !important;
         display: inline-block;
         width: 1em;
         margin-left: -1em;
       }
       .mysellkit-description ul li {
+        font-family: var(--msk-font-family) !important;
         margin-left: 1em;
         margin-bottom: 8px;
-        color: var(--msk-text-color, #1F2937);
+        color: var(--msk-text-color, #1F2937) !important;
       }
       .mysellkit-description ul li p { display: inline; margin: 0; }
       .mysellkit-description ol { counter-reset: item; }
       .mysellkit-description ol li {
+        font-family: var(--msk-font-family) !important;
         counter-increment: item;
         margin-bottom: 8px;
         margin-left: 1.5em;
-        color: var(--msk-text-color, #1F2937);
+        color: var(--msk-text-color, #1F2937) !important;
       }
       .mysellkit-description ol li::before {
         content: counter(item) ".";
-        color: var(--msk-text-color, #1F2937);
-        font-weight: 600;
+        color: var(--msk-text-color, #1F2937) !important;
+        font-weight: 600 !important;
         display: inline-block;
         width: 1.5em;
         margin-left: -1.5em;
@@ -938,11 +941,11 @@
       }
 
       .mysellkit-float-title {
-        font-family: var(--msk-font-family);
-        font-weight: 600;
-        font-size: 14px;
+        font-family: var(--msk-font-family) !important;
+        font-weight: 600 !important;
+        font-size: 14px !important;
         line-height: 1.4;
-        color: var(--msk-text-color, #1F2937);
+        color: var(--msk-text-color, #1F2937) !important;
         margin-bottom: 6px;
         display: -webkit-box;
         -webkit-line-clamp: 2;
@@ -953,20 +956,20 @@
       }
 
       .mysellkit-float-price {
-        font-family: var(--msk-font-family);
-        font-weight: 500;
-        font-size: 18px;
-        color: var(--msk-text-color, #1F2937);
+        font-family: var(--msk-font-family) !important;
+        font-weight: 500 !important;
+        font-size: 18px !important;
+        color: var(--msk-text-color, #1F2937) !important;
         display: flex;
         align-items: baseline;
         gap: 8px;
       }
 
       .mysellkit-float-price-old {
-        font-size: 14px;
-        color: var(--msk-text-color-light, #9CA3AF);
+        font-size: 14px !important;
+        color: var(--msk-text-color-light, #9CA3AF) !important;
         text-decoration: line-through;
-        font-weight: 400;
+        font-weight: 400 !important;
       }
 
       .mysellkit-debug-badge {
@@ -974,13 +977,13 @@
         bottom: 10px;
         left: 10px;
         background: #ff6b6b;
-        color: white;
+        color: white !important;
         padding: 10px 14px;
         border-radius: 8px;
-        font-size: 11px;
-        font-weight: 600;
+        font-size: 11px !important;
+        font-weight: 600 !important;
         z-index: 9999999;
-        font-family: var(--msk-font-family);
+        font-family: var(--msk-font-family) !important;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         line-height: 1.4;
       }
@@ -1047,7 +1050,7 @@
 
         .mysellkit-title {
           width: 100%;
-          font-size: 24px;
+          font-size: 24px !important;
           -webkit-line-clamp: unset;
           max-height: none;
         }
@@ -1108,10 +1111,10 @@
         .mysellkit-float-image {
           width: 56px;
           height: 56px;
-          font-size: 28px;
+          font-size: 28px !important;
         }
-        .mysellkit-float-title { font-size: 13px; }
-        .mysellkit-float-price { font-size: 15px; }
+        .mysellkit-float-title { font-size: 13px !important; }
+        .mysellkit-float-price { font-size: 15px !important; }
       }
 
       @media (min-width: 769px) and (max-width: 900px) {

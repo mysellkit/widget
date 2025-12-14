@@ -11,7 +11,7 @@
   const CONFIG = {
     API_BASE: 'https://mysellkit.com/api/1.1/wf',
     CHECKOUT_BASE: 'https://mysellkit.com',
-    VERSION: '1.3.7',
+    VERSION: '1.3.8',
     SESSION_DURATION: 86400000, // 24h in ms
     TOAST_DURATION: 5000
   };
@@ -786,11 +786,11 @@
         width: 450px;
         height: 600px;
         background: var(--msk-right-bg, #F9FAFB);
-        padding: 24px;
+        padding: 24px !important;
         overflow-y: auto !important;
         display: flex;
         flex-direction: column;
-        gap: 48px;
+        gap: 48px !important;
         -webkit-overflow-scrolling: touch !important;
         overscroll-behavior: contain !important;
         position: relative;
@@ -810,9 +810,9 @@
         font-size: 15px !important;
         line-height: 1.65 !important;
         font-weight: 500 !important;
-        margin-bottom: 16px;
+        margin-bottom: 16px !important;
       }
-      .mysellkit-description p:last-child { margin-bottom: 0; }
+      .mysellkit-description p:last-child { margin-bottom: 0 !important; }
 
       .mysellkit-description h3,
       .mysellkit-included-title {
@@ -823,8 +823,11 @@
         color: var(--msk-text-color, #1F2937) !important;
       }
       .mysellkit-description h3 {
-        margin-bottom: 12px;
-        margin-top: 8px;
+        margin-bottom: 12px !important;
+        margin-top: 8px !important;
+      }
+      .mysellkit-description h3:first-child {
+        margin-top: 0 !important;
       }
       .mysellkit-description strong {
         font-family: 'DM Sans', 'Apple Color Emoji', 'Segoe UI Emoji', -apple-system, BlinkMacSystemFont, sans-serif !important;
@@ -894,7 +897,7 @@
       }
 
       .mysellkit-included-title {
-        margin-bottom: 4px;
+        margin-bottom: 4px !important;
       }
 
       .mysellkit-included-items {

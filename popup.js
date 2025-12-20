@@ -9,8 +9,8 @@
   const POPUP_ID = SCRIPT_TAG.getAttribute('data-popup');
 
   const CONFIG = {
-    API_BASE: 'https://mysellkit.com/api/1.1/wf',
-    CHECKOUT_BASE: 'https://mysellkit.com',
+    API_BASE: 'https://app.mysellkit.com/api/1.1/wf',
+    CHECKOUT_BASE: 'https://app.mysellkit.com',
     VERSION: '1.3.2',
     SESSION_DURATION: 86400000, // 24h in ms
     TOAST_DURATION: 5000

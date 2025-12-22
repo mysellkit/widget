@@ -11,7 +11,7 @@
   const CONFIG = {
     API_BASE: 'https://app.mysellkit.com/api/1.1/wf',
     CHECKOUT_BASE: 'https://app.mysellkit.com',
-    VERSION: '1.3.13',
+    VERSION: '1.3.14',
     SESSION_DURATION: 86400000, // 24h in ms
     TOAST_DURATION: 5000
   };
@@ -292,6 +292,8 @@
   // ============================================
   // TRACK EVENTS
   // ============================================
+  // Close event tracking removed in v1.3.14
+  // Only tracking 'impression' and 'click' events
 
   async function trackEvent(eventType, additionalData = {}) {
     try {
@@ -1398,7 +1400,6 @@
     overlay.addEventListener('click', (e) => {
       if (e.target.closest('.mysellkit-close')) {
         debugLog('❌', 'Close button clicked');
-        trackEvent('close');
         hidePopup();
         if (isPersistentModeEnabled()) showFloatingWidget();
         return;
@@ -1412,7 +1413,6 @@
 
       if (e.target === overlay) {
         debugLog('❌', 'Overlay clicked (close)');
-        trackEvent('close');
         hidePopup();
         if (isPersistentModeEnabled()) showFloatingWidget();
       }

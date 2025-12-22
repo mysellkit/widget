@@ -11,7 +11,7 @@
   const CONFIG = {
     API_BASE: 'https://app.mysellkit.com/api/1.1/wf',
     CHECKOUT_BASE: 'https://app.mysellkit.com',
-    VERSION: '1.3.3',
+    VERSION: '1.3.13',
     SESSION_DURATION: 86400000, // 24h in ms
     TOAST_DURATION: 5000
   };

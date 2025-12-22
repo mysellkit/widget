@@ -11,7 +11,7 @@
   const CONFIG = {
     API_BASE: 'https://app.mysellkit.com/api/1.1/wf',
     CHECKOUT_BASE: 'https://app.mysellkit.com',
-    VERSION: '1.3.2',
+    VERSION: '1.3.3',
     SESSION_DURATION: 86400000, // 24h in ms
     TOAST_DURATION: 5000
   };
@@ -1279,16 +1279,23 @@
     const priceContainerClass = showPrice ? 'mysellkit-price-container' : 'mysellkit-price-container no-price';
     const leftColumnClass = showPrice ? 'mysellkit-left' : 'mysellkit-left no-price-mobile';
 
+    // FREE PRODUCT SUPPORT: Check if price is 0 (handles both number and string)
+    const isFreeProduct = config.price === 0 || config.price === "0" || config.price === '0';
+    // Use free_label when product is free and free_label is provided, otherwise use currency + price
+    const currentPriceDisplay = isFreeProduct && config.free_label
+      ? config.free_label
+      : `${config.currency || '$'}${config.price || '0'}`;
+
     const priceHTML = showPrice ? `
       <div class="${priceContainerClass}">
-        <span class="mysellkit-price-current">${config.currency || '$'}${config.price || '0'}</span>
+        <span class="mysellkit-price-current">${currentPriceDisplay}</span>
         ${config.old_price ? `<span class="mysellkit-price-old">${config.currency || '$'}${config.old_price}</span>` : ''}
       </div>
     ` : '';
 
     const floatPriceHTML = showPrice ? `
       <div class="mysellkit-float-price">
-        <span>${config.currency || '$'}${config.price || '0'}</span>
+        <span>${currentPriceDisplay}</span>
         ${config.old_price ? `<span class="mysellkit-float-price-old">${config.currency || '$'}${config.old_price}</span>` : ''}
       </div>
     ` : '';
